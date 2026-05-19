@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('로그인')}"></head>
+<body>
+<main class="container login-container">
+    <section class="login-card">
+        <h1 class="login-title">방탈출</h1>
+        <p class="login-subtitle">로그인 후 이용해주세요</p>
+
+        <form action="/home" method="get" class="login-form">
+            <label class="login-field">
+                <span>아이디</span>
+                <input type="text" name="uid" placeholder="아이디를 입력하세요" autocomplete="username"/>
+            </label>
+            <label class="login-field">
+                <span>비밀번호</span>
+                <input type="password" name="password" placeholder="비밀번호를 입력하세요" autocomplete="current-password"/>
+            </label>
+            <button type="submit" class="btn btn-lg login-submit">로그인</button>
+        </form>
+    </section>
+</main>
+</body>
+</html>

@@ -1,3 +1,13 @@
+-- 사용자 데이터
+INSERT INTO users (uid, password, name)
+VALUES ('admin', 'admin123', '관리자');
+INSERT INTO users (uid, password, name)
+VALUES ('user1', 'password1', '홍길동');
+INSERT INTO users (uid, password, name)
+VALUES ('user2', 'password2', '이순신');
+INSERT INTO users (uid, password, name)
+VALUES ('user3', 'password3', '김유신');
+
 -- 예약 시간 데이터
 INSERT INTO reservation_time (start_at)
 VALUES ('10:00');

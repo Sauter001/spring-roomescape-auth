@@ -79,8 +79,8 @@ class JdbcTemplateThemeRepositoryTest {
 
     private void addReservation(String name, LocalDate date, long timeId, long themeId) {
         jdbcTemplate.update(
-                "INSERT INTO reservation (name, date, time_id, theme_id) VALUES (?, ?, ?, ?)",
-                name, date, timeId, themeId);
+                "INSERT INTO reservation (user_id, date, time_id, theme_id) VALUES (?, ?, ?, ?)",
+                1L, date, timeId, themeId);
     }
 
     @Test

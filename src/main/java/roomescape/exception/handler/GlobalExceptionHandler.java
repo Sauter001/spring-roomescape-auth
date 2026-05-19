@@ -15,6 +15,7 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 import roomescape.exception.BadRequestException;
 import roomescape.exception.ConflictException;
 import roomescape.exception.NotFoundException;
+import roomescape.exception.UnauthorizedException;
 import roomescape.exception.UnprocessableException;
 import roomescape.exception.code.BadRequestCode;
 import roomescape.exception.code.ErrorCode;
@@ -55,6 +56,11 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(UnprocessableException.class)
     public ResponseEntity<ErrorResponse> handleUnprocessableException(UnprocessableException e, HttpServletRequest request) {
+        return toResponse(e.getCode(), request, e.getMessage());
+    }
+
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<ErrorResponse> handleUnauthorizedException(UnauthorizedException e, HttpServletRequest request) {
         return toResponse(e.getCode(), request, e.getMessage());
     }
 

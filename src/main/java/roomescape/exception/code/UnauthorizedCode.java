@@ -1,0 +1,23 @@
+package roomescape.exception.code;
+
+import org.springframework.http.HttpStatus;
+
+public enum UnauthorizedCode implements ErrorCode{
+    LOGIN_FAILED("로그인 실패. 아이디 혹은 비밀번호가 일치하지 않습니다.");
+
+    private final String message;
+
+    UnauthorizedCode(String message) {
+        this.message = message;
+    }
+
+    @Override
+    public HttpStatus getStatus() {
+        return HttpStatus.UNAUTHORIZED;
+    }
+
+    @Override
+    public String getMessage() {
+        return message;
+    }
+}

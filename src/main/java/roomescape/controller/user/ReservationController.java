@@ -44,7 +44,7 @@ public class ReservationController {
 
     @GetMapping
     public ResponseEntity<List<ReservationResponse>> getReservations(@LoginUser User user) {
-        List<ReservationResponse> responses = ReservationResponse.from(reservationService.findReservationsByName(user.name()));
+        List<ReservationResponse> responses = ReservationResponse.from(reservationService.findReservationsByUserId(user.id()));
         return ResponseEntity.ok(responses);
     }
 
@@ -53,7 +53,7 @@ public class ReservationController {
             @Valid @RequestBody ReservationRequest request,
             @LoginUser User user) {
         LocalDateTime now = LocalDateTime.now(clock);
-        Reservation reservationReturned = reservationService.saveReservation(request.toSaveCommand(user.name()), now,
+        Reservation reservationReturned = reservationService.saveReservation(request.toSaveCommand(user.id()), now,
                 SAVE_POLICY);
         ReservationResponse reservationResponse = ReservationResponse.from(reservationReturned);
 
@@ -66,8 +66,8 @@ public class ReservationController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteReservation(@PathVariable Long id) {
-        reservationService.updateCanceled(id, LocalDateTime.now(clock), CANCEL_POLICY);
+    public ResponseEntity<Void> deleteReservation(@PathVariable Long id, @LoginUser User user) {
+        reservationService.cancelByOwner(id, user, LocalDateTime.now(clock), CANCEL_POLICY);
 
         return ResponseEntity.noContent().build();
     }
@@ -78,7 +78,7 @@ public class ReservationController {
             @Valid @RequestBody ReservationEditRequest request,
             @LoginUser User user) {
         LocalDateTime now = LocalDateTime.now(clock);
-        Reservation reservation = reservationService.editReservation(id, request.toCommand(), now);
+        Reservation reservation = reservationService.editReservationByOwner(id, user, request.toCommand(), now);
         return ResponseEntity.ok(ReservationResponse.from(reservation));
     }
 }

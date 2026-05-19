@@ -10,16 +10,22 @@ import java.util.Objects;
 
 public record Reservation(
         Long id,
-        String name,
+        User user,
         LocalDate date,
         ReservationTime time,
         Theme theme) {
 
     public Reservation {
-        validateName(name);
+        validateUser(user);
         validateDate(date);
         validateTime(time);
         validateTheme(theme);
+    }
+
+    private void validateUser(User user) {
+        if (Objects.isNull(user)) {
+            throw new BadRequestException(BadRequestCode.INVALID_RESERVATION_USER);
+        }
     }
 
     private void validateTheme(Theme theme) {
@@ -34,23 +40,18 @@ public record Reservation(
         }
     }
 
-    private void validateName(String name) {
-        if (Objects.isNull(name)) {
-            throw new BadRequestException(BadRequestCode.INVALID_RESERVATION_NAME);
-        }
-        if (name.isBlank()) {
-            throw new BadRequestException(BadRequestCode.BLANK_RESERVATION_NAME);
-        }
-    }
-
     private void validateDate(LocalDate date) {
         if (Objects.isNull(date)) {
             throw new BadRequestException(BadRequestCode.INVALID_RESERVATION_DATE);
         }
     }
 
-    public static Reservation forSave(ReservationSaveCommand command, ReservationTime reservationTime, Theme theme) {
-        return new Reservation(null, command.name(), command.date(), reservationTime, theme);
+    public static Reservation forSave(ReservationSaveCommand command, User user, ReservationTime reservationTime, Theme theme) {
+        return new Reservation(null, user, command.date(), reservationTime, theme);
+    }
+
+    public long userId() {
+        return user.id();
     }
 
     public long timeId() {
@@ -59,6 +60,10 @@ public record Reservation(
 
     public long themeId() {
         return theme.id();
+    }
+
+    public boolean isOwnedBy(User other) {
+        return Objects.equals(user.id(), other.id());
     }
 
     @Override

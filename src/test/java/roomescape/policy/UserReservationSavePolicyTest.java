@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import roomescape.domain.Reservation;
 import roomescape.domain.ReservationTime;
 import roomescape.domain.Theme;
+import roomescape.domain.User;
 import roomescape.exception.UnprocessableException;
 import roomescape.exception.code.UnprocessableCode;
 
@@ -23,6 +24,7 @@ class UserReservationSavePolicyTest {
     private static final ReservationTime FUTURE_TIME = new ReservationTime(1L, LocalTime.of(18, 0));
     private static final ReservationTime PAST_TIME = new ReservationTime(1L, LocalTime.of(9, 0));
     private static final Theme THEME = new Theme(1L, "우주 정거장", "설명", "https://example.com/1.jpg");
+    private static final User USER = new User(2L, "user1", "브라운");
 
     private UserReservationSavePolicy policy;
 
@@ -33,7 +35,7 @@ class UserReservationSavePolicyTest {
 
     @Test
     void 지난_날짜는_예외가_발생한다() {
-        Reservation reservation = new Reservation(null, "브라운", FIXED_TODAY.minusDays(1), FUTURE_TIME, THEME);
+        Reservation reservation = new Reservation(null, USER, FIXED_TODAY.minusDays(1), FUTURE_TIME, THEME);
 
         assertThatThrownBy(() -> policy.validate(reservation, FIXED_NOW))
                 .isInstanceOf(UnprocessableException.class)
@@ -42,7 +44,7 @@ class UserReservationSavePolicyTest {
 
     @Test
     void 오늘_날짜의_지난_시간은_예외가_발생한다() {
-        Reservation reservation = new Reservation(null, "브라운", FIXED_TODAY, PAST_TIME, THEME);
+        Reservation reservation = new Reservation(null, USER, FIXED_TODAY, PAST_TIME, THEME);
 
         assertThatThrownBy(() -> policy.validate(reservation, FIXED_NOW))
                 .isInstanceOf(UnprocessableException.class)
@@ -51,14 +53,14 @@ class UserReservationSavePolicyTest {
 
     @Test
     void 오늘_날짜의_미래_시간은_예약할_수_있다() {
-        Reservation reservation = new Reservation(null, "브라운", FIXED_TODAY, FUTURE_TIME, THEME);
+        Reservation reservation = new Reservation(null, USER, FIXED_TODAY, FUTURE_TIME, THEME);
 
         assertThatCode(() -> policy.validate(reservation, FIXED_NOW)).doesNotThrowAnyException();
     }
 
     @Test
     void 미래_날짜는_예약할_수_있다() {
-        Reservation reservation = new Reservation(null, "브라운", FIXED_TODAY.plusDays(1), FUTURE_TIME, THEME);
+        Reservation reservation = new Reservation(null, USER, FIXED_TODAY.plusDays(1), FUTURE_TIME, THEME);
 
         assertThatCode(() -> policy.validate(reservation, FIXED_NOW)).doesNotThrowAnyException();
     }

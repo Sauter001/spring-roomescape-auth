@@ -10,12 +10,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import roomescape.annotation.LoginUser;
 import roomescape.domain.Reservation;
-import roomescape.domain.User;
 import roomescape.policy.AdminReservationCancelPolicy;
 import roomescape.policy.AdminReservationSavePolicy;
-import roomescape.request.ReservationRequest;
+import roomescape.request.AdminReservationRequest;
 import roomescape.response.ReservationResponse;
 import roomescape.service.ReservationService;
 
@@ -47,10 +45,9 @@ public class AdminReservationController {
 
     @PostMapping
     public ResponseEntity<ReservationResponse> saveReservation(
-            @Valid @RequestBody ReservationRequest request,
-            @LoginUser User user) {
+            @Valid @RequestBody AdminReservationRequest request) {
         LocalDateTime now = LocalDateTime.now(clock);
-        Reservation reservationReturned = reservationService.saveReservation(request.toSaveCommand(user.name()), now,
+        Reservation reservationReturned = reservationService.saveReservation(request.toSaveCommand(), now,
                 SAVE_POLICY);
         ReservationResponse reservationResponse = ReservationResponse.from(reservationReturned);
 

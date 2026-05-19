@@ -1,6 +1,5 @@
 package roomescape.fake;
 
-import org.springframework.dao.EmptyResultDataAccessException;
 import roomescape.domain.Reservation;
 import roomescape.domain.ReservationTime;
 import roomescape.exception.ConflictException;
@@ -34,7 +33,7 @@ public class FakeReservationRepository implements ReservationRepository {
         if (duplicated) {
             throw new ConflictException(ConflictCode.RESERVATION_DUPLICATED);
         }
-        Reservation newReservation = new Reservation(id++, reservation.name(), reservation.date(), reservation.time(), reservation.theme());
+        Reservation newReservation = new Reservation(id++, reservation.user(), reservation.date(), reservation.time(), reservation.theme());
         reservations.add(newReservation);
         return newReservation;
     }
@@ -50,9 +49,9 @@ public class FakeReservationRepository implements ReservationRepository {
     }
 
     @Override
-    public List<Reservation> findReservationsByName(String name) {
+    public List<Reservation> findReservationsByUserId(Long userId) {
         return reservations.stream()
-                .filter(reservation -> reservation.name().equalsIgnoreCase(name))
+                .filter(reservation -> Objects.equals(reservation.user().id(), userId))
                 .toList();
     }
 
@@ -71,7 +70,7 @@ public class FakeReservationRepository implements ReservationRepository {
         ReservationTime updatedTime = new ReservationTime(timeId, reservation.time().startAt());
         Reservation updated = new Reservation(
                 reservation.id(),
-                reservation.name(),
+                reservation.user(),
                 date,
                 updatedTime,
                 reservation.theme());

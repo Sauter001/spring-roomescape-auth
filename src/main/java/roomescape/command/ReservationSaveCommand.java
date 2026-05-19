@@ -2,6 +2,6 @@ package roomescape.command;
 
 import java.time.LocalDate;
 
-public record ReservationSaveCommand(String name, LocalDate date, Long timeId, Long themeId) {
+public record ReservationSaveCommand(Long userId, LocalDate date, Long timeId, Long themeId) {
 
 }

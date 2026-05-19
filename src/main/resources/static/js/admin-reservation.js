@@ -1,7 +1,7 @@
 (() => {
     const rows = document.getElementById('rows');
     const addBtn = document.getElementById('add-btn');
-    const nameEl = document.getElementById('r-name');
+    const userIdEl = document.getElementById('r-user-id');
     const dateEl = document.getElementById('r-date');
     const timeEl = document.getElementById('r-time');
     const themeEl = document.getElementById('r-theme');
@@ -12,12 +12,12 @@
 
     addBtn.addEventListener('click', async () => {
         const body = {
-            name: nameEl.value.trim(),
+            userId: Number(userIdEl.value),
             date: dateEl.value,
             timeId: Number(timeEl.value),
             themeId: Number(themeEl.value)
         };
-        if (!body.name || !body.date || !body.timeId || !body.themeId) {
+        if (!body.userId || !body.date || !body.timeId || !body.themeId) {
             return showToast('모든 항목을 입력해주세요.', 'error');
         }
         try {
@@ -28,7 +28,7 @@
             });
             const r = await res.json();
             appendRow(r);
-            nameEl.value = '';
+            userIdEl.value = '';
             dateEl.value = '';
             timeEl.value = '';
             themeEl.value = '';

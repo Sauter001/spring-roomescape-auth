@@ -11,7 +11,7 @@ import java.util.Optional;
 @Repository
 public class JdbcTemplateUserRepository implements UserRepository {
     private static final RowMapper<User> USER_ROW_MAPPER =
-            (rs, rowNum) -> new User(rs.getString("uid"), rs.getString("name"));
+            (rs, rowNum) -> new User(rs.getLong("id"), rs.getString("uid"), rs.getString("name"));
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -35,7 +35,7 @@ public class JdbcTemplateUserRepository implements UserRepository {
     public Optional<User> findById(Long id) {
         try {
             User user = jdbcTemplate.queryForObject(
-                    "SELECT uid, name FROM users WHERE id = ?",
+                    "SELECT id, uid, name FROM users WHERE id = ?",
                     USER_ROW_MAPPER, id);
             return Optional.ofNullable(user);
         } catch (EmptyResultDataAccessException e) {

@@ -19,7 +19,7 @@ public interface ReservationRepository {
 
     int relocateToCanceledReservation(Long id);
 
-    List<Reservation> findReservationsByName(String name);
+    List<Reservation> findReservationsByUserId(Long userId);
 
     int countReservationsOf(LocalDate date, long timeId, long themeId);
 

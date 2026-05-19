@@ -8,10 +8,13 @@ import roomescape.command.ReservationSaveCommand;
 import roomescape.domain.Reservation;
 import roomescape.domain.ReservationTime;
 import roomescape.domain.Theme;
+import roomescape.domain.User;
 import roomescape.exception.ConflictException;
+import roomescape.exception.ForbiddenException;
 import roomescape.exception.NotFoundException;
 import roomescape.exception.UnprocessableException;
 import roomescape.exception.code.ConflictCode;
+import roomescape.exception.code.ForbiddenCode;
 import roomescape.exception.code.NotFoundCode;
 import roomescape.exception.code.UnprocessableCode;
 import roomescape.policy.ReservationCancelPolicy;
@@ -19,6 +22,7 @@ import roomescape.policy.ReservationSavePolicy;
 import roomescape.repository.ReservationRepository;
 import roomescape.repository.ReservationTimeRepository;
 import roomescape.repository.ThemeRepository;
+import roomescape.repository.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -28,14 +32,17 @@ public class ReservationService {
     private final ReservationRepository reservationRepository;
     private final ReservationTimeRepository reservationTimeRepository;
     private final ThemeRepository themeRepository;
+    private final UserRepository userRepository;
 
     public ReservationService(
             ReservationRepository reservationRepository,
             ReservationTimeRepository reservationTimeRepository,
-            ThemeRepository themeRepository) {
+            ThemeRepository themeRepository,
+            UserRepository userRepository) {
         this.reservationRepository = reservationRepository;
         this.reservationTimeRepository = reservationTimeRepository;
         this.themeRepository = themeRepository;
+        this.userRepository = userRepository;
     }
 
     public List<Reservation> findAllReservations() {
@@ -55,19 +62,36 @@ public class ReservationService {
     }
 
     @Transactional
+    public void cancelByOwner(Long id, User owner, LocalDateTime now, ReservationCancelPolicy policy) {
+        Reservation reservation = reservationRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(NotFoundCode.RESERVATION_NOT_FOUND));
+        if (!reservation.isOwnedBy(owner)) {
+            throw new ForbiddenException(ForbiddenCode.NOT_RESERVATION_OWNER);
+        }
+        policy.validate(reservation, now);
+        int archived = reservationRepository.relocateToCanceledReservation(id);
+        if (archived == 0) {
+            throw new NotFoundException(NotFoundCode.RESERVATION_NOT_FOUND);
+        }
+        reservationRepository.deleteById(id);
+    }
+
+    @Transactional
     public Reservation saveReservation(ReservationSaveCommand command, LocalDateTime now, ReservationSavePolicy policy) {
+        User user = userRepository.findById(command.userId())
+                .orElseThrow(() -> new NotFoundException(NotFoundCode.USER_NOT_FOUND));
         ReservationTime reservationTime = reservationTimeRepository.findById(command.timeId())
                 .orElseThrow(() -> new NotFoundException(NotFoundCode.RESERVATION_TIME_NOT_FOUND));
         Theme theme = themeRepository.findById(command.themeId())
                 .orElseThrow(() -> new NotFoundException(NotFoundCode.THEME_NOT_FOUND));
-        Reservation reservation = Reservation.forSave(command, reservationTime, theme);
+        Reservation reservation = Reservation.forSave(command, user, reservationTime, theme);
         policy.validate(reservation, now);
 
         return reservationRepository.addReservation(reservation);
     }
 
-    public List<Reservation> findReservationsByName(String name) {
-        return reservationRepository.findReservationsByName(name);
+    public List<Reservation> findReservationsByUserId(Long userId) {
+        return reservationRepository.findReservationsByUserId(userId);
     }
 
     @Transactional
@@ -85,6 +109,16 @@ public class ReservationService {
         } catch (IllegalStateException e) {
             throw new NotFoundException(NotFoundCode.RESERVATION_TIME_NOT_FOUND);
         }
+    }
+
+    @Transactional
+    public Reservation editReservationByOwner(Long id, User owner, ReservationEditCommand command, LocalDateTime now) {
+        Reservation reservation = reservationRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(NotFoundCode.RESERVATION_NOT_FOUND));
+        if (!reservation.isOwnedBy(owner)) {
+            throw new ForbiddenException(ForbiddenCode.NOT_RESERVATION_OWNER);
+        }
+        return editReservation(id, command, now);
     }
 
     @NonNull

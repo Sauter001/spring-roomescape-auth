@@ -9,6 +9,7 @@ import org.springframework.test.context.jdbc.Sql;
 import roomescape.domain.Reservation;
 import roomescape.domain.ReservationTime;
 import roomescape.domain.Theme;
+import roomescape.domain.User;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -17,11 +18,13 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @JdbcTest
-@Import({JdbcTemplateReservationRepository.class, JdbcTemplateThemeRepository.class})
+@Import({JdbcTemplateReservationRepository.class, JdbcTemplateThemeRepository.class, JdbcTemplateUserRepository.class})
 class JdbcTemplateReservationRepositoryTest {
 
     private static final long TIME_ID = 1L;
     private static final long THEME_ID = 1L;
+    private static final long ADMIN_ID = 1L;
+    private static final long USER1_ID = 2L;
 
     @Autowired
     private ReservationRepository reservationRepository;
@@ -30,30 +33,34 @@ class JdbcTemplateReservationRepositoryTest {
     private ThemeRepository themeRepository;
 
     @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
     private JdbcTemplate jdbcTemplate;
 
     @Test
-    @Sql({"/test-truncate.sql", "/test-theme.sql", "/test-reservation-time.sql"})
+    @Sql({"/test-truncate.sql", "/test-user.sql", "/test-theme.sql", "/test-reservation-time.sql"})
     void 예약을_저장하면_id가_채워진_도메인을_반환한다() {
-        Reservation saved = addReservation("브라운", LocalDate.of(2026, 5, 3));
+        Reservation saved = addReservation(USER1_ID, LocalDate.of(2026, 5, 3));
 
         assertThat(saved.id()).isNotNull();
-        assertThat(saved.name()).isEqualTo("브라운");
+        assertThat(saved.user().id()).isEqualTo(USER1_ID);
         assertThat(saved.date()).isEqualTo(LocalDate.of(2026, 5, 3));
         assertThat(saved.time().id()).isEqualTo(TIME_ID);
     }
 
-    private Reservation addReservation(String name, LocalDate date) {
+    private Reservation addReservation(long userId, LocalDate date) {
         ReservationTime time = new ReservationTime(TIME_ID, LocalTime.of(10, 0));
         Theme theme = themeRepository.findById(THEME_ID).get();
-        return reservationRepository.addReservation(new Reservation(null, name, date, time, theme));
+        User user = userRepository.findById(userId).get();
+        return reservationRepository.addReservation(new Reservation(null, user, date, time, theme));
     }
 
     @Test
-    @Sql({"/test-truncate.sql", "/test-theme.sql", "/test-reservation-time.sql"})
+    @Sql({"/test-truncate.sql", "/test-user.sql", "/test-theme.sql", "/test-reservation-time.sql"})
     void 모든_예약을_조인_조회한다() {
-        addReservation("브라운", LocalDate.of(2026, 5, 3));
-        addReservation("조이", LocalDate.of(2026, 5, 4));
+        addReservation(USER1_ID, LocalDate.of(2026, 5, 3));
+        addReservation(ADMIN_ID, LocalDate.of(2026, 5, 4));
 
         List<Reservation> reservations = reservationRepository.findAllReservations();
 
@@ -62,19 +69,19 @@ class JdbcTemplateReservationRepositoryTest {
     }
 
     @Test
-    @Sql({"/test-truncate.sql", "/test-theme.sql", "/test-reservation-time.sql"})
+    @Sql({"/test-truncate.sql", "/test-user.sql", "/test-theme.sql", "/test-reservation-time.sql"})
     void 특정_사용자의_예약을_조회한다() {
-        addReservation("브라운", LocalDate.of(2026, 5, 3));
-        addReservation("브라운", LocalDate.of(2026, 5, 4));
-        addReservation("조이", LocalDate.of(2026, 5, 5));
+        addReservation(USER1_ID, LocalDate.of(2026, 5, 3));
+        addReservation(USER1_ID, LocalDate.of(2026, 5, 4));
+        addReservation(ADMIN_ID, LocalDate.of(2026, 5, 5));
 
-        List<Reservation> reservations = reservationRepository.findReservationsByName("브라운");
+        List<Reservation> reservations = reservationRepository.findReservationsByUserId(USER1_ID);
 
         assertThat(reservations).hasSize(2);
     }
 
     @Test
-    @Sql({"/test-truncate.sql", "/test-theme.sql", "/test-reservation-time.sql"})
+    @Sql({"/test-truncate.sql", "/test-user.sql", "/test-theme.sql", "/test-reservation-time.sql"})
     void 예약이_없으면_빈_리스트를_반환한다() {
         List<Reservation> reservations = reservationRepository.findAllReservations();
 
@@ -82,9 +89,9 @@ class JdbcTemplateReservationRepositoryTest {
     }
 
     @Test
-    @Sql({"/test-truncate.sql", "/test-theme.sql", "/test-reservation-time.sql"})
+    @Sql({"/test-truncate.sql", "/test-user.sql", "/test-theme.sql", "/test-reservation-time.sql"})
     void id로_예약을_삭제한다() {
-        long reservationId = addReservation("브라운", LocalDate.of(2026, 5, 3)).id();
+        long reservationId = addReservation(USER1_ID, LocalDate.of(2026, 5, 3)).id();
 
         reservationRepository.deleteById(reservationId);
 
@@ -93,18 +100,18 @@ class JdbcTemplateReservationRepositoryTest {
     }
 
     @Test
-    @Sql({"/test-truncate.sql", "/test-theme.sql", "/test-reservation-time.sql"})
+    @Sql({"/test-truncate.sql", "/test-user.sql", "/test-theme.sql", "/test-reservation-time.sql"})
     void 같은_날짜_시간_테마에_이미_예약이_있는지_카운트() {
-        addReservation("브라운", LocalDate.of(2026, 5, 3));
+        addReservation(USER1_ID, LocalDate.of(2026, 5, 3));
         int count = reservationRepository.countReservationsOf(LocalDate.of(2026, 5, 3), TIME_ID, THEME_ID);
 
         assertThat(count).isEqualTo(1);
     }
 
     @Test
-    @Sql({"/test-truncate.sql", "/test-theme.sql", "/test-reservation-time.sql"})
+    @Sql({"/test-truncate.sql", "/test-user.sql", "/test-theme.sql", "/test-reservation-time.sql"})
     void 날짜_시간_테마_중_하나라도_다르면_0건() {
-        addReservation("브라운", LocalDate.of(2026, 5, 3));
+        addReservation(USER1_ID, LocalDate.of(2026, 5, 3));
 
         int count = reservationRepository.countReservationsOf(LocalDate.of(2026, 5, 3), 2L, THEME_ID);
         assertThat(count).isEqualTo(0);

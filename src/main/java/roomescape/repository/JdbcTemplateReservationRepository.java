@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 import roomescape.domain.Reservation;
 import roomescape.domain.ReservationTime;
 import roomescape.domain.Theme;
+import roomescape.domain.User;
 import roomescape.exception.ConflictException;
 import roomescape.exception.code.ConflictCode;
 
@@ -22,6 +23,18 @@ import java.util.Optional;
 
 @Repository
 public class JdbcTemplateReservationRepository implements ReservationRepository {
+
+    private static final String SELECT_RESERVATION_JOIN =
+            "SELECT r.id AS reservation_id, r.date, " +
+                    "u.id AS user_id, u.uid AS user_uid, u.name AS user_name, " +
+                    "t.id AS time_id, t.start_at, " +
+                    "th.id AS theme_id, th.name AS theme_name, th.description AS theme_description, " +
+                    "th.thumbnail_url AS theme_thumbnail_url " +
+                    "FROM reservation r " +
+                    "JOIN users u ON r.user_id = u.id " +
+                    "JOIN reservation_time t ON r.time_id = t.id " +
+                    "JOIN theme th ON r.theme_id = th.id ";
+
     private final JdbcTemplate jdbcTemplate;
 
     public JdbcTemplateReservationRepository(JdbcTemplate jdbcTemplate) {
@@ -32,14 +45,7 @@ public class JdbcTemplateReservationRepository implements ReservationRepository 
     public Optional<Reservation> findById(Long id) {
         try {
             Reservation reservation = jdbcTemplate.queryForObject(
-                    "SELECT r.id AS reservation_id, r.name AS reservation_name, r.date, " +
-                            "t.id AS time_id, t.start_at, " +
-                            "th.id AS theme_id, th.name AS theme_name, th.description AS theme_description, " +
-                            "th.thumbnail_url AS theme_thumbnail_url " +
-                            "FROM reservation r " +
-                            "JOIN reservation_time t ON r.time_id = t.id " +
-                            "JOIN theme th ON r.theme_id = th.id " +
-                            "WHERE r.id = ?",
+                    SELECT_RESERVATION_JOIN + "WHERE r.id = ?",
                     reservationRowMapper(),
                     id
             );
@@ -51,6 +57,10 @@ public class JdbcTemplateReservationRepository implements ReservationRepository 
 
     private RowMapper<Reservation> reservationRowMapper() {
         return (rs, rowNum) -> {
+            User user = new User(
+                    rs.getLong("user_id"),
+                    rs.getString("user_uid"),
+                    rs.getString("user_name"));
             ReservationTime reservationTime = new ReservationTime(
                     rs.getLong("time_id"),
                     rs.getTime("start_at").toLocalTime());
@@ -61,7 +71,7 @@ public class JdbcTemplateReservationRepository implements ReservationRepository 
                     rs.getString("theme_thumbnail_url"));
             return new Reservation(
                     rs.getLong("reservation_id"),
-                    rs.getString("reservation_name"),
+                    user,
                     rs.getDate("date").toLocalDate(),
                     reservationTime,
                     theme);
@@ -70,16 +80,7 @@ public class JdbcTemplateReservationRepository implements ReservationRepository 
 
     @Override
     public List<Reservation> findAllReservations() {
-        return jdbcTemplate.query(
-                "SELECT r.id AS reservation_id, r.name AS reservation_name, r.date, " +
-                        "t.id AS time_id, t.start_at, " +
-                        "th.id AS theme_id, th.name AS theme_name, th.description AS theme_description, " +
-                        "th.thumbnail_url AS theme_thumbnail_url " +
-                        "FROM reservation r " +
-                        "JOIN reservation_time t ON r.time_id = t.id " +
-                        "JOIN theme th ON r.theme_id = th.id",
-                reservationRowMapper()
-        );
+        return jdbcTemplate.query(SELECT_RESERVATION_JOIN, reservationRowMapper());
     }
 
     @Override
@@ -89,9 +90,9 @@ public class JdbcTemplateReservationRepository implements ReservationRepository 
             jdbcTemplate.update(
                     conn -> {
                         PreparedStatement preparedStatement = conn.prepareStatement(
-                                "INSERT INTO reservation(name, date, time_id, theme_id) " +
+                                "INSERT INTO reservation(user_id, date, time_id, theme_id) " +
                                         "VALUES (?, ?, ?, ?)", PreparedStatement.RETURN_GENERATED_KEYS);
-                        preparedStatement.setString(1, reservation.name());
+                        preparedStatement.setLong(1, reservation.userId());
                         preparedStatement.setDate(2, java.sql.Date.valueOf(reservation.date()));
                         preparedStatement.setLong(3, reservation.timeId());
                         preparedStatement.setLong(4, reservation.themeId());
@@ -105,7 +106,7 @@ public class JdbcTemplateReservationRepository implements ReservationRepository 
 
         return new Reservation(
                 Objects.requireNonNull(keyHolder.getKey()).longValue(),
-                reservation.name(),
+                reservation.user(),
                 reservation.date(),
                 reservation.time(),
                 reservation.theme());
@@ -119,24 +120,17 @@ public class JdbcTemplateReservationRepository implements ReservationRepository 
     @Override
     public int relocateToCanceledReservation(Long id) {
         return jdbcTemplate.update(
-                "INSERT INTO canceled_reservation (id, name, date, time_id, theme_id) " +
-                        "SELECT id, name, date, time_id, theme_id FROM reservation WHERE id = ?",
+                "INSERT INTO canceled_reservation (id, user_id, date, time_id, theme_id) " +
+                        "SELECT id, user_id, date, time_id, theme_id FROM reservation WHERE id = ?",
                 id);
     }
 
     @Override
-    public List<Reservation> findReservationsByName(String name) {
+    public List<Reservation> findReservationsByUserId(Long userId) {
         return jdbcTemplate.query(
-                "SELECT r.id AS reservation_id, r.name AS reservation_name, r.date, " +
-                        "t.id AS time_id, t.start_at, " +
-                        "th.id AS theme_id, th.name AS theme_name, th.description AS theme_description, " +
-                        "th.thumbnail_url AS theme_thumbnail_url " +
-                        "FROM reservation r " +
-                        "JOIN reservation_time t ON r.time_id = t.id " +
-                        "JOIN theme th ON r.theme_id = th.id " +
-                        "WHERE r.name = ?",
+                SELECT_RESERVATION_JOIN + "WHERE r.user_id = ?",
                 reservationRowMapper(),
-                name
+                userId
         );
     }
 

@@ -27,6 +27,7 @@ class ReservationServiceConcurrencyTest {
 
     private static final long TIME_ID = 1L;
     private static final long THEME_ID = 1L;
+    private static final long USER_ID = 2L;
     private static final LocalDate RESERVATION_DATE = LocalDate.of(2099, 12, 31);
     private static final LocalDateTime NOW = LocalDateTime.of(2026, 5, 18, 10, 0);
 
@@ -39,7 +40,7 @@ class ReservationServiceConcurrencyTest {
     private JdbcTemplate jdbcTemplate;
 
     @Test
-    @Sql({"/test-truncate.sql", "/test-theme.sql", "/test-reservation-time.sql"})
+    @Sql({"/test-truncate.sql", "/test-user.sql", "/test-theme.sql", "/test-reservation-time.sql"})
     void 동일한_날짜_시간_테마로_동시_저장_요청이_와도_하나만_성공() throws InterruptedException {
         int threadCount = 16;
         ExecutorService executor = Executors.newFixedThreadPool(threadCount);
@@ -54,13 +55,12 @@ class ReservationServiceConcurrencyTest {
 
         List<Future<?>> futures = new ArrayList<>();
         for (int i = 0; i < threadCount; i++) {
-            String name = "u" + i;
             futures.add(executor.submit(() -> {
                 readyLatch.countDown();
                 try {
                     startLatch.await();
                     ReservationSaveCommand command = new ReservationSaveCommand(
-                            name, RESERVATION_DATE, TIME_ID, THEME_ID);
+                            USER_ID, RESERVATION_DATE, TIME_ID, THEME_ID);
                     reservationService.saveReservation(command, NOW, savePolicy);
                     successCount.incrementAndGet();
                 } catch (ConflictException e) {

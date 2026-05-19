@@ -14,6 +14,7 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 import roomescape.exception.BadRequestException;
 import roomescape.exception.ConflictException;
+import roomescape.exception.ForbiddenException;
 import roomescape.exception.NotFoundException;
 import roomescape.exception.UnauthorizedException;
 import roomescape.exception.UnprocessableException;
@@ -61,6 +62,11 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(UnauthorizedException.class)
     public ResponseEntity<ErrorResponse> handleUnauthorizedException(UnauthorizedException e, HttpServletRequest request) {
+        return toResponse(e.getCode(), request, e.getMessage());
+    }
+
+    @ExceptionHandler(ForbiddenException.class)
+    public ResponseEntity<ErrorResponse> handleForbiddenException(ForbiddenException e, HttpServletRequest request) {
         return toResponse(e.getCode(), request, e.getMessage());
     }
 

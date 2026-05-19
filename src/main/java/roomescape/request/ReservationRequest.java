@@ -10,7 +10,7 @@ public record ReservationRequest(
         @NotNull Long timeId,
         @NotNull Long themeId) {
 
-    public ReservationSaveCommand toSaveCommand(String username) {
-        return new ReservationSaveCommand(username, date, timeId, themeId);
+    public ReservationSaveCommand toSaveCommand(Long userId) {
+        return new ReservationSaveCommand(userId, date, timeId, themeId);
     }
 }

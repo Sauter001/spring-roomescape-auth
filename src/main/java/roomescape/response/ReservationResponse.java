@@ -14,7 +14,7 @@ public record ReservationResponse(long id, String name, LocalDate date, Reservat
     public static ReservationResponse from(Reservation reservation) {
         return new ReservationResponse(
                 reservation.id(),
-                reservation.name(),
+                reservation.user().name(),
                 reservation.date(),
                 ReservationTimeResponse.from(reservation.time()),
                 ThemeResponse.from(reservation.theme())

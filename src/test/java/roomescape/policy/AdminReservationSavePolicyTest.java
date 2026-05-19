@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import roomescape.domain.Reservation;
 import roomescape.domain.ReservationTime;
 import roomescape.domain.Theme;
+import roomescape.domain.User;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -18,6 +19,7 @@ class AdminReservationSavePolicyTest {
     private static final LocalDateTime FIXED_NOW = LocalDateTime.of(FIXED_TODAY, LocalTime.of(12, 0));
     private static final ReservationTime PAST_TIME = new ReservationTime(1L, LocalTime.of(9, 0));
     private static final Theme THEME = new Theme(1L, "우주 정거장", "설명", "https://example.com/1.jpg");
+    private static final User ADMIN = new User(1L, "admin", "관리자");
 
     private AdminReservationSavePolicy policy;
 
@@ -28,14 +30,14 @@ class AdminReservationSavePolicyTest {
 
     @Test
     void 지난_날짜도_예약할_수_있다() {
-        Reservation reservation = new Reservation(null, "관리자", FIXED_TODAY.minusDays(7), PAST_TIME, THEME);
+        Reservation reservation = new Reservation(null, ADMIN, FIXED_TODAY.minusDays(7), PAST_TIME, THEME);
 
         assertThatCode(() -> policy.validate(reservation, FIXED_NOW)).doesNotThrowAnyException();
     }
 
     @Test
     void 오늘_날짜의_지난_시간도_예약할_수_있다() {
-        Reservation reservation = new Reservation(null, "관리자", FIXED_TODAY, PAST_TIME, THEME);
+        Reservation reservation = new Reservation(null, ADMIN, FIXED_TODAY, PAST_TIME, THEME);
 
         assertThatCode(() -> policy.validate(reservation, FIXED_NOW)).doesNotThrowAnyException();
     }

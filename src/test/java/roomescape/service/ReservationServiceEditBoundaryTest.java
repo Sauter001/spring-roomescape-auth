@@ -6,6 +6,7 @@ import roomescape.command.ReservationEditCommand;
 import roomescape.domain.Reservation;
 import roomescape.domain.ReservationTime;
 import roomescape.domain.Theme;
+import roomescape.domain.User;
 import roomescape.exception.ConflictException;
 import roomescape.exception.NotFoundException;
 import roomescape.exception.UnprocessableException;
@@ -15,6 +16,7 @@ import roomescape.exception.code.UnprocessableCode;
 import roomescape.fake.FakeReservationRepository;
 import roomescape.fake.FakeReservationTimeRepository;
 import roomescape.repository.ThemeRepository;
+import roomescape.repository.UserRepository;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -42,6 +44,8 @@ class ReservationServiceEditBoundaryTest {
     private static final ReservationTime TIME_LATER = new ReservationTime(TIME_LATER_ID, LocalTime.of(11, 0));
     private static final ReservationTime TIME_PAST = new ReservationTime(TIME_PAST_ID, NOW_TIME.minusSeconds(1));
     private static final Theme THEME = new Theme(THEME_ID, "우주 정거장", "설명", "https://example.com/1.jpg");
+    private static final User BROWN = new User(2L, "user1", "브라운");
+    private static final User JOY = new User(3L, "user2", "조이");
 
     private List<Reservation> referencedReservations;
     private ReservationService service;
@@ -52,7 +56,7 @@ class ReservationServiceEditBoundaryTest {
         FakeReservationRepository reservationRepository = new FakeReservationRepository(referencedReservations);
         FakeReservationTimeRepository timeRepository =
                 new FakeReservationTimeRepository(List.of(TIME_NOW, TIME_LATER, TIME_PAST));
-        service = new ReservationService(reservationRepository, timeRepository, mock(ThemeRepository.class));
+        service = new ReservationService(reservationRepository, timeRepository, mock(ThemeRepository.class), mock(UserRepository.class));
     }
 
     @Test
@@ -66,7 +70,7 @@ class ReservationServiceEditBoundaryTest {
 
     @Test
     void 시작_시각이_정확히_현재_시각인_예약은_수정_가능() {
-        referencedReservations.add(new Reservation(1L, "브라운", TODAY, TIME_NOW, THEME));
+        referencedReservations.add(new Reservation(1L, BROWN, TODAY, TIME_NOW, THEME));
         ReservationEditCommand command = new ReservationEditCommand(TODAY.plusDays(1), TIME_LATER_ID);
 
         assertThatCode(() -> service.editReservation(1L, command, NOW))
@@ -76,7 +80,7 @@ class ReservationServiceEditBoundaryTest {
     @Test
     void 시작_시각이_현재보다_빠른_예약은_수정_불가() {
         ReservationTime almostNow = new ReservationTime(99L, NOW_TIME.minusSeconds(1));
-        referencedReservations.add(new Reservation(1L, "브라운", TODAY, almostNow, THEME));
+        referencedReservations.add(new Reservation(1L, BROWN, TODAY, almostNow, THEME));
         ReservationEditCommand command = new ReservationEditCommand(TODAY.plusDays(1), TIME_LATER_ID);
 
         assertThatThrownBy(() -> service.editReservation(1L, command, NOW))
@@ -86,7 +90,7 @@ class ReservationServiceEditBoundaryTest {
 
     @Test
     void 존재하지_않는_시간id로_수정시_404() {
-        referencedReservations.add(new Reservation(1L, "브라운", TODAY.plusDays(1), TIME_LATER, THEME));
+        referencedReservations.add(new Reservation(1L, BROWN, TODAY.plusDays(1), TIME_LATER, THEME));
         ReservationEditCommand command = new ReservationEditCommand(TODAY.plusDays(2), 999L);
 
         assertThatThrownBy(() -> service.editReservation(1L, command, NOW))
@@ -96,7 +100,7 @@ class ReservationServiceEditBoundaryTest {
 
     @Test
     void 오늘_날짜로_수정가능() {
-        referencedReservations.add(new Reservation(1L, "브라운", TODAY.plusDays(1), TIME_LATER, THEME));
+        referencedReservations.add(new Reservation(1L, BROWN, TODAY.plusDays(1), TIME_LATER, THEME));
         ReservationEditCommand command = new ReservationEditCommand(TODAY, TIME_LATER_ID);
 
         assertThatCode(() -> service.editReservation(1L, command, NOW))
@@ -105,7 +109,7 @@ class ReservationServiceEditBoundaryTest {
 
     @Test
     void 어제_날짜로_수정하면_예외() {
-        referencedReservations.add(new Reservation(1L, "브라운", TODAY.plusDays(1), TIME_LATER, THEME));
+        referencedReservations.add(new Reservation(1L, BROWN, TODAY.plusDays(1), TIME_LATER, THEME));
         ReservationEditCommand command = new ReservationEditCommand(TODAY.minusDays(1), TIME_LATER_ID);
 
         assertThatThrownBy(() -> service.editReservation(1L, command, NOW))
@@ -115,7 +119,7 @@ class ReservationServiceEditBoundaryTest {
 
     @Test
     void 오늘_현재_시각으로_수정가능() {
-        referencedReservations.add(new Reservation(1L, "브라운", TODAY.plusDays(1), TIME_LATER, THEME));
+        referencedReservations.add(new Reservation(1L, BROWN, TODAY.plusDays(1), TIME_LATER, THEME));
         ReservationEditCommand command = new ReservationEditCommand(TODAY, TIME_NOW_ID);
 
         assertThatCode(() -> service.editReservation(1L, command, NOW))
@@ -124,7 +128,7 @@ class ReservationServiceEditBoundaryTest {
 
     @Test
     void 오늘_현재보다_1초_빠른_시간으로_수정하면_예외() {
-        referencedReservations.add(new Reservation(1L, "브라운", TODAY.plusDays(1), TIME_LATER, THEME));
+        referencedReservations.add(new Reservation(1L, BROWN, TODAY.plusDays(1), TIME_LATER, THEME));
         ReservationEditCommand command = new ReservationEditCommand(TODAY, TIME_PAST_ID);
 
         assertThatThrownBy(() -> service.editReservation(1L, command, NOW))
@@ -134,8 +138,8 @@ class ReservationServiceEditBoundaryTest {
 
     @Test
     void 다른_예약이_같은_슬롯을_차지하면_409() {
-        referencedReservations.add(new Reservation(1L, "브라운", TODAY.plusDays(1), TIME_LATER, THEME));
-        referencedReservations.add(new Reservation(2L, "조이", TODAY.plusDays(2), TIME_NOW, THEME));
+        referencedReservations.add(new Reservation(1L, BROWN, TODAY.plusDays(1), TIME_LATER, THEME));
+        referencedReservations.add(new Reservation(2L, JOY, TODAY.plusDays(2), TIME_NOW, THEME));
         ReservationEditCommand command = new ReservationEditCommand(TODAY.plusDays(2), TIME_NOW_ID);
 
         assertThatThrownBy(() -> service.editReservation(1L, command, NOW))
@@ -144,7 +148,7 @@ class ReservationServiceEditBoundaryTest {
 
     @Test
     void 동일한_날짜_시간_테마로_수정_요청은_허용안됨() {
-        referencedReservations.add(new Reservation(1L, "브라운", TODAY.plusDays(1), TIME_LATER, THEME));
+        referencedReservations.add(new Reservation(1L, BROWN, TODAY.plusDays(1), TIME_LATER, THEME));
         ReservationEditCommand command = new ReservationEditCommand(TODAY.plusDays(1), TIME_LATER_ID);
 
         assertThatThrownBy(() -> service.editReservation(1L, command, NOW))
@@ -154,7 +158,7 @@ class ReservationServiceEditBoundaryTest {
 
     @Test
     void 빈_슬롯으로_수정하면_성공하고_결과에_새_값이_반영() {
-        referencedReservations.add(new Reservation(1L, "브라운", TODAY.plusDays(1), TIME_LATER, THEME));
+        referencedReservations.add(new Reservation(1L, BROWN, TODAY.plusDays(1), TIME_LATER, THEME));
         ReservationEditCommand command = new ReservationEditCommand(TODAY.plusDays(2), TIME_NOW_ID);
 
         Reservation result = service.editReservation(1L, command, NOW);

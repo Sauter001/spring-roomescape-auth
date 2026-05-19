@@ -18,7 +18,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @RestController
-@RequestMapping("/themes")
+@RequestMapping("/api/themes")
 public class ThemeController {
     private final ThemeService themeService;
     private final ReservationTimeService reservationTimeService;

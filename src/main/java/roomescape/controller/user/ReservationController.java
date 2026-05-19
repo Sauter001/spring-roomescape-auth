@@ -26,9 +26,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
-@RequestMapping("/reservations")
+@RequestMapping("/api/reservations")
 public class ReservationController {
-    private static final String DEFAULT_PATH = "/reservations/";
+    private static final String DEFAULT_PATH = "/api/reservations/";
     private static final UserReservationSavePolicy SAVE_POLICY = new UserReservationSavePolicy();
     private static final UserReservationCancelPolicy CANCEL_POLICY = new UserReservationCancelPolicy();
     private final ReservationService reservationService;

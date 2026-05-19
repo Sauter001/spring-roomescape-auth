@@ -19,9 +19,9 @@ import java.net.URI;
 import java.util.List;
 
 @RestController
-@RequestMapping("/admin/themes")
+@RequestMapping("/api/admin/themes")
 public class AdminThemeController {
-    private static final String DEFAULT_PATH = "/themes/";
+    private static final String DEFAULT_PATH = "/api/admin/themes/";
     private final ThemeService themeService;
 
     public AdminThemeController(ThemeService themeService) {

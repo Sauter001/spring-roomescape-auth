@@ -23,11 +23,11 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
-@RequestMapping("/admin/reservations")
+@RequestMapping("/api/admin/reservations")
 public class AdminReservationController {
     private static final AdminReservationSavePolicy SAVE_POLICY = new AdminReservationSavePolicy();
     private static final AdminReservationCancelPolicy CANCEL_POLICY = new AdminReservationCancelPolicy();
-    private static final String DEFAULT_PATH = "/reservations/";
+    private static final String DEFAULT_PATH = "/api/reservations/";
     private final ReservationService reservationService;
     private final Clock clock;
 

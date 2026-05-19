@@ -37,7 +37,7 @@ class RoomescapeApplicationTest {
 
         List<Integer> times = RestAssured.given()
                 .queryParam("date", date.toString())
-                .when().get("/themes/1/times")
+                .when().get("/api/themes/1/times")
                 .then().statusCode(200)
                 .extract().jsonPath().getList("id", Integer.class);
 
@@ -53,7 +53,7 @@ class RoomescapeApplicationTest {
         RestAssured.given()
                 .contentType(ContentType.JSON)
                 .body(request)
-                .when().post("/reservations")
+                .when().post("/api/reservations")
                 .then().statusCode(201)
                 .body("name", equalTo("브라운"))
                 .body("date", equalTo(date.toString()))
@@ -62,7 +62,7 @@ class RoomescapeApplicationTest {
 
         List<Integer> availableTimes = RestAssured.given()
                 .queryParam("date", date.toString())
-                .when().get("/themes/1/times")
+                .when().get("/api/themes/1/times")
                 .then().statusCode(200)
                 .extract().jsonPath().getList("id", Integer.class);
 

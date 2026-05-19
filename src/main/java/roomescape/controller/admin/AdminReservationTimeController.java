@@ -19,10 +19,10 @@ import java.net.URI;
 import java.util.List;
 
 @RestController
-@RequestMapping("/admin/times")
+@RequestMapping("/api/admin/times")
 public class AdminReservationTimeController {
 
-    private static final String DEFAULT_PATH = "/times/";
+    private static final String DEFAULT_PATH = "/api/admin/times/";
     private final ReservationTimeService reservationTimeService;
 
     public AdminReservationTimeController(ReservationTimeService reservationTimeService) {

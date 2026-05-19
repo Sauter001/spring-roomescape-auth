@@ -38,3 +38,12 @@ CREATE TABLE canceled_reservation
     canceled_at TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id)
 );
+
+CREATE TABLE users
+(
+    id       BIGINT       NOT NULL AUTO_INCREMENT,
+    uid      VARCHAR(255) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    name     VARCHAR(255) NOT NULL,
+    PRIMARY KEY (id)
+);

@@ -25,6 +25,11 @@ public class UserViewController {
     }
 
     @GetMapping("/")
+    public String login() {
+        return "login";
+    }
+
+    @GetMapping("/home")
     public String home(Model model) {
         List<Theme> popular = themeService.findPopularThemes(Period.lastWeek(clock));
         List<Theme> allThemes = themeService.getThemes();

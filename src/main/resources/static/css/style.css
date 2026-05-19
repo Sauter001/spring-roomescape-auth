@@ -510,3 +510,67 @@ button {
     display: flex;
     gap: 6px;
 }
+
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 24px;
+    background-image: url("/images/main.png");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.login-card {
+    backdrop-filter: blur(4px);
+    background: rgba(255, 255, 255, 0.92);
+}
+
+.login-card {
+    width: 100%;
+    max-width: 380px;
+    padding: 40px 32px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+.login-title {
+    margin: 0 0 8px;
+    text-align: center;
+    font-size: 28px;
+}
+
+.login-subtitle {
+    margin: 0 0 28px;
+    text-align: center;
+    color: #777;
+    font-size: 14px;
+}
+
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.login-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 14px;
+}
+
+.login-field input {
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+.login-submit {
+    margin-top: 8px;
+    width: 100%;
+}

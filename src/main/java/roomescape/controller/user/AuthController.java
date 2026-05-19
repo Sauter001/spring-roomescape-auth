@@ -1,0 +1,13 @@
+package roomescape.controller.user;
+
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class AuthController {
+    @PostMapping("/login")
+    public void login(@RequestBody String username, @RequestBody String password) {
+
+    }
+}

@@ -31,9 +31,10 @@ class RoomescapeApplicationTest {
     }
 
     @Test
-    @Sql({"/test-truncate.sql", "/test-theme.sql", "/test-reservation-time.sql"})
+    @Sql({"/test-truncate.sql", "/test-user.sql", "/test-theme.sql", "/test-reservation-time.sql"})
     void 예약_가능_시간_조회_후_예약하면_해당_시간은_제외된다() {
         LocalDate date = LocalDate.now().plusDays(1);
+        String sessionId = login();
 
         List<Integer> times = RestAssured.given()
                 .queryParam("date", date.toString())
@@ -51,11 +52,12 @@ class RoomescapeApplicationTest {
         );
 
         RestAssured.given()
+                .sessionId(sessionId)
                 .contentType(ContentType.JSON)
                 .body(request)
                 .when().post("/api/reservations")
                 .then().statusCode(201)
-                .body("name", equalTo("브라운"))
+                .body("name", equalTo("관리자"))
                 .body("date", equalTo(date.toString()))
                 .body("time.id", equalTo(1))
                 .body("theme.id", equalTo(1));
@@ -67,5 +69,14 @@ class RoomescapeApplicationTest {
                 .extract().jsonPath().getList("id", Integer.class);
 
         assertThat(availableTimes).doesNotContain(1);
+    }
+
+    private String login() {
+        return RestAssured.given()
+                .contentType(ContentType.JSON)
+                .body(Map.of("uid", "admin", "password", "admin123"))
+                .when().post("/api/login")
+                .then().statusCode(200)
+                .extract().sessionId();
     }
 }

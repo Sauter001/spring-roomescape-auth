@@ -6,7 +6,6 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import roomescape.domain.User;
 
-import java.util.Objects;
 import java.util.Optional;
 
 @Repository
@@ -21,11 +20,15 @@ public class JdbcTemplateUserRepository implements UserRepository {
     }
 
     @Override
-    public boolean existUserWithIdAndPwd(String uid, String password) {
-        Integer rows = jdbcTemplate.queryForObject(
-                "SELECT COUNT(*) FROM users WHERE uid = ? AND password = ?",
-                Integer.class, uid, password);
-        return Objects.requireNonNull(rows).equals(1);
+    public Optional<Long> findIdByUidAndPassword(String uid, String password) {
+        try {
+            Long id = jdbcTemplate.queryForObject(
+                    "SELECT id FROM users WHERE uid = ? AND password = ?",
+                    Long.class, uid, password);
+            return Optional.ofNullable(id);
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        }
     }
 
     @Override

@@ -22,12 +22,10 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<Void> login(@RequestBody LoginRequest loginRequest, HttpSession session) {
-        boolean success = authService.doLogin(loginRequest.uid(), loginRequest.password());
+        Long userId = authService.doLogin(loginRequest.uid(), loginRequest.password())
+                .orElseThrow(() -> new UnauthorizedException(UnauthorizedCode.LOGIN_FAILED));
 
-        if (success) {
-            session.setAttribute("uid", loginRequest.uid());
-            return ResponseEntity.ok().build();
-        }
-        throw new UnauthorizedException(UnauthorizedCode.LOGIN_FAILED);
+        session.setAttribute("uid", userId);
+        return ResponseEntity.ok().build();
     }
 }

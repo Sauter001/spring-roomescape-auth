@@ -6,7 +6,7 @@ import java.util.Optional;
 
 public interface UserRepository {
 
-    boolean existUserWithIdAndPwd(String uid, String password);
+    Optional<Long> findIdByUidAndPassword(String uid, String password);
 
-    Optional<User> findById(Long uid);
+    Optional<User> findById(Long id);
 }

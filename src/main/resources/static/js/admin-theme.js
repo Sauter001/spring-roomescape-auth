@@ -1,0 +1,60 @@
+(() => {
+    const rows = document.getElementById('rows');
+    const addBtn = document.getElementById('add-btn');
+    const nameEl = document.getElementById('th-name');
+    const descEl = document.getElementById('th-desc');
+    const thumbEl = document.getElementById('th-thumb');
+
+    rows.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.addEventListener('click', () => deleteRow(btn.closest('tr')));
+    });
+
+    addBtn.addEventListener('click', async () => {
+        const body = {
+            name: nameEl.value.trim(),
+            description: descEl.value.trim(),
+            thumbnailUrl: thumbEl.value.trim()
+        };
+        if (!body.name) return showToast('이름을 입력해주세요.', 'error');
+        try {
+            const res = await apiFetch('/admin/themes', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(body)
+            });
+            const t = await res.json();
+            appendRow(t);
+            nameEl.value = '';
+            descEl.value = '';
+            thumbEl.value = '';
+            toastSuccess('테마가 추가되었습니다.');
+        } catch (e) {
+            toastError(e);
+        }
+    });
+
+    function appendRow(t) {
+        const tr = document.createElement('tr');
+        tr.dataset.id = t.id;
+        tr.innerHTML = `
+            <td>${t.id}</td>
+            <td>${t.name}</td>
+            <td>${t.description ?? ''}</td>
+            <td><img src="${t.thumbnailUrl ?? ''}" alt="" style="width:60px;height:45px;object-fit:cover;"/></td>
+            <td><button type="button" class="btn btn-danger btn-sm delete-btn">삭제</button></td>`;
+        tr.querySelector('.delete-btn').addEventListener('click', () => deleteRow(tr));
+        rows.appendChild(tr);
+    }
+
+    async function deleteRow(tr) {
+        if (!confirm('삭제하시겠습니까?')) return;
+        const id = tr.dataset.id;
+        try {
+            await apiFetch(`/admin/themes/${id}`, {method: 'DELETE'});
+            tr.remove();
+            toastSuccess('테마가 삭제되었습니다.');
+        } catch (e) {
+            toastError(e);
+        }
+    }
+})();

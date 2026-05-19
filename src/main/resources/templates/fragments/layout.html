@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head(title)">
+    <meta charset="UTF-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title th:text="${title}">방탈출</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<header class="site-header" th:fragment="header">
+    <div class="container">
+        <a class="logo" th:href="@{/}">방탈출</a>
+        <nav>
+            <a th:href="@{/}">홈</a>
+            <a th:href="@{/reservation-mine}">내 예약</a>
+            <a th:href="@{/admin}">관리자</a>
+        </nav>
+    </div>
+</header>
+
+<th:block th:fragment="toast">
+    <div class="toast-container" id="toast-container"></div>
+    <script th:src="@{/js/toast.js}"></script>
+    <script th:src="@{/js/api.js}"></script>
+    <script th:src="@{/js/util.js}"></script>
+</th:block>
+</body>
+</html>

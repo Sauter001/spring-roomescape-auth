@@ -14,9 +14,10 @@
             <a th:href="@{/home}">홈</a>
             <a th:href="@{/reservation-mine}">내 예약</a>
             <a th:href="@{/admin}">관리자</a>
-            <a th:href="@{/}">로그아웃</a>
+            <a id="logout-link" th:href="@{/}">로그아웃</a>
         </nav>
     </div>
+    <script th:src="@{/js/logout.js}"></script>
 </header>
 
 <th:block th:fragment="toast">

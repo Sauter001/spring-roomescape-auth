@@ -2,6 +2,13 @@
     const form = document.getElementById('login-form');
     if (!form) return;
 
+    // 토큰 만료 등으로 튕겨온 경우 안내 메시지를 보여준다.
+    const authMessage = sessionStorage.getItem('authMessage');
+    if (authMessage) {
+        sessionStorage.removeItem('authMessage');
+        showToast(authMessage, 'error');
+    }
+
     form.addEventListener('submit', async (event) => {
         event.preventDefault();
 
@@ -14,11 +21,15 @@
         }
 
         try {
-            await apiFetch('/login', {
+            const res = await apiFetch('/login', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({uid, password})
             });
+            const token = res.headers.get('Authorization');
+            if (token) {
+                localStorage.setItem('accessToken', token);
+            }
             window.location.href = '/home';
         } catch (error) {
             toastError(error);

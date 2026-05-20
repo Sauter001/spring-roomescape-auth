@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import roomescape.command.ReservationEditCommand;
 import roomescape.domain.Reservation;
 import roomescape.domain.ReservationTime;
+import roomescape.domain.Role;
 import roomescape.domain.Theme;
 import roomescape.domain.User;
 import roomescape.exception.ConflictException;
@@ -44,8 +45,8 @@ class ReservationServiceEditBoundaryTest {
     private static final ReservationTime TIME_LATER = new ReservationTime(TIME_LATER_ID, LocalTime.of(11, 0));
     private static final ReservationTime TIME_PAST = new ReservationTime(TIME_PAST_ID, NOW_TIME.minusSeconds(1));
     private static final Theme THEME = new Theme(THEME_ID, "우주 정거장", "설명", "https://example.com/1.jpg");
-    private static final User BROWN = new User(2L, "user1", "브라운");
-    private static final User JOY = new User(3L, "user2", "조이");
+    private static final User BROWN = new User(2L, "user1", "브라운", Role.USER);
+    private static final User JOY = new User(3L, "user2", "조이", Role.USER);
 
     private List<Reservation> referencedReservations;
     private ReservationService service;

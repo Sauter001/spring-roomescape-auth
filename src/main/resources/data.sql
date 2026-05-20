@@ -1,20 +1,24 @@
--- 사용자 데이터
-INSERT INTO users (uid, password, name)
-VALUES ('admin', 'admin123', '관리자');
-INSERT INTO users (uid, password, name)
-VALUES ('user1', 'password1', '홍길동');
-INSERT INTO users (uid, password, name)
-VALUES ('user2', 'password2', '이순신');
-INSERT INTO users (uid, password, name)
-VALUES ('user3', 'password3', '김유신');
-INSERT INTO users (uid, password, name)
-VALUES ('user4', 'password4', '강감찬');
-INSERT INTO users (uid, password, name)
-VALUES ('user5', 'password5', '세종대왕');
-INSERT INTO users (uid, password, name)
-VALUES ('user6', 'password6', '장보고');
-INSERT INTO users (uid, password, name)
-VALUES ('user7', 'password7', '을지문덕');
+-- 사용자 데이터 (role: ADMIN=전체 관리, MANAGER=매장 관리, USER=일반 사용자)
+INSERT INTO users (uid, password, name, role)
+VALUES ('admin', 'admin123', '관리자', 'ADMIN');
+INSERT INTO users (uid, password, name, role)
+VALUES ('user1', 'password1', '홍길동', 'MANAGER');
+INSERT INTO users (uid, password, name, role)
+VALUES ('user2', 'password2', '이순신', 'MANAGER');
+INSERT INTO users (uid, password, name, role)
+VALUES ('user3', 'password3', '김유신', 'USER');
+INSERT INTO users (uid, password, name, role)
+VALUES ('user4', 'password4', '강감찬', 'USER');
+INSERT INTO users (uid, password, name, role)
+VALUES ('user5', 'password5', '세종대왕', 'USER');
+INSERT INTO users (uid, password, name, role)
+VALUES ('user6', 'password6', '장보고', 'USER');
+INSERT INTO users (uid, password, name, role)
+VALUES ('user7', 'password7', '을지문덕', 'USER');
+INSERT INTO users (uid, password, name, role)
+VALUES ('user8', 'password8', '신사임당', 'MANAGER');
+INSERT INTO users (uid, password, name, role)
+VALUES ('user9', 'password9', '정약용', 'MANAGER');
 
 -- 예약 시간 데이터
 INSERT INTO reservation_time (start_at)
@@ -36,47 +40,68 @@ VALUES ('17:00');
 INSERT INTO reservation_time (start_at)
 VALUES ('18:00');
 
--- 테마 데이터
-INSERT INTO theme (name, description, thumbnail_url)
-VALUES ('우주 정거장', '우주 정거장에서 탈출하세요.', 'https://picsum.photos/seed/theme1/400/300');
-INSERT INTO theme (name, description, thumbnail_url)
-VALUES ('공포의 지하실', '지하실에 갇힌 당신, 살아남을 수 있을까요?', 'https://picsum.photos/seed/theme2/400/300');
-INSERT INTO theme (name, description, thumbnail_url)
-VALUES ('박물관이 살아있다', '밤이 되면 살아나는 박물관에서의 모험.', 'https://picsum.photos/seed/theme3/400/300');
-INSERT INTO theme (name, description, thumbnail_url)
-VALUES ('비밀의 정원', '아름답지만 치명적인 비밀이 숨겨진 정원.', 'https://picsum.photos/seed/theme4/400/300');
-INSERT INTO theme (name, description, thumbnail_url)
-VALUES ('미래 도시', '2124년 테크노 시티에서의 추격전.', 'https://picsum.photos/seed/theme5/400/300');
-INSERT INTO theme (name, description, thumbnail_url)
-VALUES ('해적선의 저주', '저주받은 해적선에서 보물을 찾아 탈출하세요.', 'https://picsum.photos/seed/theme6/400/300');
-INSERT INTO theme (name, description, thumbnail_url)
-VALUES ('사라진 탐정', '실종된 탐정의 사무실에서 단서를 찾으세요.', 'https://picsum.photos/seed/theme7/400/300');
-INSERT INTO theme (name, description, thumbnail_url)
-VALUES ('화성 탐사선', '화성 탐사선에서의 긴급 탈출.', 'https://picsum.photos/seed/theme8/400/300');
-INSERT INTO theme (name, description, thumbnail_url)
-VALUES ('중세 성터', '고대 성의 비밀 통로를 찾아보세요.', 'https://picsum.photos/seed/theme9/400/300');
-INSERT INTO theme (name, description, thumbnail_url)
-VALUES ('마법 학교', '마법 학교의 마지막 시험을 통과하세요.', 'https://picsum.photos/seed/theme10/400/300');
-INSERT INTO theme (name, description, thumbnail_url)
-VALUES ('잠입 수사', '적진 한복판에 잠입하여 정보를 탈취하세요.', 'https://picsum.photos/seed/theme11/400/300');
-INSERT INTO theme (name, description, thumbnail_url)
-VALUES ('눈 내리는 마을', '눈 덮인 마을의 따뜻한 이야기.', 'https://picsum.photos/seed/theme12/400/300');
-INSERT INTO theme (name, description, thumbnail_url)
-VALUES ('심해 탐사', '심해 속 신비로운 생명체와의 조우.', 'https://picsum.photos/seed/theme13/400/300');
-INSERT INTO theme (name, description, thumbnail_url)
-VALUES ('사막의 신기루', '끝없는 사막에서 길을 찾아보세요.', 'https://picsum.photos/seed/theme14/400/300');
-INSERT INTO theme (name, description, thumbnail_url)
-VALUES ('미로 공원', '복잡한 미로 속에서 출구를 찾으세요.', 'https://picsum.photos/seed/theme15/400/300');
-INSERT INTO theme (name, description, thumbnail_url)
-VALUES ('오래된 도서관', '먼지 쌓인 책들 속의 비밀 문장.', 'https://picsum.photos/seed/theme16/400/300');
-INSERT INTO theme (name, description, thumbnail_url)
-VALUES ('정글 탐험', '야생 정글에서의 생존 게임.', 'https://picsum.photos/seed/theme17/400/300');
-INSERT INTO theme (name, description, thumbnail_url)
-VALUES ('서커스 유랑단', '화려한 서커스 뒤에 감춰진 진실.', 'https://picsum.photos/seed/theme18/400/300');
-INSERT INTO theme (name, description, thumbnail_url)
-VALUES ('사이버 펑크', '네온 사인이 가득한 도시의 어두운 이면.', 'https://picsum.photos/seed/theme19/400/300');
-INSERT INTO theme (name, description, thumbnail_url)
-VALUES ('타임 머신', '과거와 미래를 넘나드는 시간 여행.', 'https://picsum.photos/seed/theme20/400/300');
+-- 매장 데이터
+INSERT INTO branch (name)
+VALUES ('1호점');
+INSERT INTO branch (name)
+VALUES ('2호점');
+INSERT INTO branch (name)
+VALUES ('3호점');
+INSERT INTO branch (name)
+VALUES ('4호점');
+
+-- 매장 매니저 매핑 (매니저 1명 = 매장 1곳)
+-- user_id: 2=홍길동, 3=이순신, 9=신사임당, 10=정약용
+INSERT INTO branch_manager (user_id, branch_id)
+VALUES (2, 1);
+INSERT INTO branch_manager (user_id, branch_id)
+VALUES (3, 2);
+INSERT INTO branch_manager (user_id, branch_id)
+VALUES (9, 3);
+INSERT INTO branch_manager (user_id, branch_id)
+VALUES (10, 4);
+
+-- 테마 데이터 (branch_id: 매장당 5개씩 순서대로 배분)
+INSERT INTO theme (branch_id, name, description, thumbnail_url)
+VALUES (1, '우주 정거장', '우주 정거장에서 탈출하세요.', 'https://picsum.photos/seed/theme1/400/300');
+INSERT INTO theme (branch_id, name, description, thumbnail_url)
+VALUES (1, '공포의 지하실', '지하실에 갇힌 당신, 살아남을 수 있을까요?', 'https://picsum.photos/seed/theme2/400/300');
+INSERT INTO theme (branch_id, name, description, thumbnail_url)
+VALUES (1, '박물관이 살아있다', '밤이 되면 살아나는 박물관에서의 모험.', 'https://picsum.photos/seed/theme3/400/300');
+INSERT INTO theme (branch_id, name, description, thumbnail_url)
+VALUES (1, '비밀의 정원', '아름답지만 치명적인 비밀이 숨겨진 정원.', 'https://picsum.photos/seed/theme4/400/300');
+INSERT INTO theme (branch_id, name, description, thumbnail_url)
+VALUES (1, '미래 도시', '2124년 테크노 시티에서의 추격전.', 'https://picsum.photos/seed/theme5/400/300');
+INSERT INTO theme (branch_id, name, description, thumbnail_url)
+VALUES (2, '해적선의 저주', '저주받은 해적선에서 보물을 찾아 탈출하세요.', 'https://picsum.photos/seed/theme6/400/300');
+INSERT INTO theme (branch_id, name, description, thumbnail_url)
+VALUES (2, '사라진 탐정', '실종된 탐정의 사무실에서 단서를 찾으세요.', 'https://picsum.photos/seed/theme7/400/300');
+INSERT INTO theme (branch_id, name, description, thumbnail_url)
+VALUES (2, '화성 탐사선', '화성 탐사선에서의 긴급 탈출.', 'https://picsum.photos/seed/theme8/400/300');
+INSERT INTO theme (branch_id, name, description, thumbnail_url)
+VALUES (2, '중세 성터', '고대 성의 비밀 통로를 찾아보세요.', 'https://picsum.photos/seed/theme9/400/300');
+INSERT INTO theme (branch_id, name, description, thumbnail_url)
+VALUES (2, '마법 학교', '마법 학교의 마지막 시험을 통과하세요.', 'https://picsum.photos/seed/theme10/400/300');
+INSERT INTO theme (branch_id, name, description, thumbnail_url)
+VALUES (3, '잠입 수사', '적진 한복판에 잠입하여 정보를 탈취하세요.', 'https://picsum.photos/seed/theme11/400/300');
+INSERT INTO theme (branch_id, name, description, thumbnail_url)
+VALUES (3, '눈 내리는 마을', '눈 덮인 마을의 따뜻한 이야기.', 'https://picsum.photos/seed/theme12/400/300');
+INSERT INTO theme (branch_id, name, description, thumbnail_url)
+VALUES (3, '심해 탐사', '심해 속 신비로운 생명체와의 조우.', 'https://picsum.photos/seed/theme13/400/300');
+INSERT INTO theme (branch_id, name, description, thumbnail_url)
+VALUES (3, '사막의 신기루', '끝없는 사막에서 길을 찾아보세요.', 'https://picsum.photos/seed/theme14/400/300');
+INSERT INTO theme (branch_id, name, description, thumbnail_url)
+VALUES (3, '미로 공원', '복잡한 미로 속에서 출구를 찾으세요.', 'https://picsum.photos/seed/theme15/400/300');
+INSERT INTO theme (branch_id, name, description, thumbnail_url)
+VALUES (4, '오래된 도서관', '먼지 쌓인 책들 속의 비밀 문장.', 'https://picsum.photos/seed/theme16/400/300');
+INSERT INTO theme (branch_id, name, description, thumbnail_url)
+VALUES (4, '정글 탐험', '야생 정글에서의 생존 게임.', 'https://picsum.photos/seed/theme17/400/300');
+INSERT INTO theme (branch_id, name, description, thumbnail_url)
+VALUES (4, '서커스 유랑단', '화려한 서커스 뒤에 감춰진 진실.', 'https://picsum.photos/seed/theme18/400/300');
+INSERT INTO theme (branch_id, name, description, thumbnail_url)
+VALUES (4, '사이버 펑크', '네온 사인이 가득한 도시의 어두운 이면.', 'https://picsum.photos/seed/theme19/400/300');
+INSERT INTO theme (branch_id, name, description, thumbnail_url)
+VALUES (4, '타임 머신', '과거와 미래를 넘나드는 시간 여행.', 'https://picsum.photos/seed/theme20/400/300');
 
 -- 인기 테마 집계용 예약 데이터 (최근 7일 이내)
 -- user_id: 2=홍길동, 3=이순신, 4=김유신, 5=강감찬, 6=세종대왕, 7=장보고, 8=을지문덕

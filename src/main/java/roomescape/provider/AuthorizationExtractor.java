@@ -13,7 +13,6 @@ public class AuthorizationExtractor {
     private AuthorizationExtractor() {
     }
 
-    // 모바일/API는 Authorization: Bearer 헤더, 브라우저는 쿠키로 토큰을 보낸다.
     public static String extract(HttpServletRequest request) {
         String header = request.getHeader(HEADER);
         if (header != null && header.startsWith(BEARER_PREFIX)) {

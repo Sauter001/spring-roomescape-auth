@@ -33,13 +33,34 @@ class AdminLoginInterceptorTest {
     }
 
     @Test
-    void 로그인하면_admin_엔드포인트_접근_허용() {
-        String token = login();
+    void ADMIN_권한이면_admin_엔드포인트_접근_허용() {
+        String token = login("admin", "admin123");
 
         RestAssured.given()
                 .header("Authorization", token)
                 .when().get("/api/admin/themes")
                 .then().statusCode(200);
+    }
+
+    @Test
+    void MANAGER_권한이면_admin_엔드포인트_접근_허용() {
+        String token = login("manager", "manager123");
+
+        RestAssured.given()
+                .header("Authorization", token)
+                .when().get("/api/admin/themes")
+                .then().statusCode(200);
+    }
+
+    @Test
+    void USER_권한으로_admin_엔드포인트_접근시_403() {
+        String token = login("user1", "password1");
+
+        RestAssured.given()
+                .header("Authorization", token)
+                .when().get("/api/admin/themes")
+                .then().statusCode(403)
+                .body("code", equalTo("ADMIN_ACCESS_DENIED"));
     }
 
     @Test
@@ -50,10 +71,10 @@ class AdminLoginInterceptorTest {
                 .body("code", equalTo("LOGIN_REQUIRED"));
     }
 
-    private String login() {
+    private String login(String uid, String password) {
         return RestAssured.given()
                 .contentType(ContentType.JSON)
-                .body(Map.of("uid", "admin", "password", "admin123"))
+                .body(Map.of("uid", uid, "password", password))
                 .when().post("/api/login")
                 .then().statusCode(200)
                 .extract().header("Authorization");

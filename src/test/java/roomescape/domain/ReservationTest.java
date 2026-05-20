@@ -20,8 +20,8 @@ class ReservationTest {
     private static final ReservationTime TIME = new ReservationTime(1L, LocalTime.of(10, 0));
     private static final Theme THEME = new Theme(1L, "우주 정거장", "설명", "https://example.com/1.jpg");
     private static final LocalDate DATE = LocalDate.of(2026, 5, 10);
-    private static final User BROWN = new User(2L, "user1", "브라운");
-    private static final User JOY = new User(3L, "user2", "조이");
+    private static final User BROWN = new User(2L, "user1", "브라운", Role.USER);
+    private static final User JOY = new User(3L, "user2", "조이", Role.USER);
 
     static Stream<Arguments> invalidDateTimes() {
         LocalTime startAt = TIME.startAt();
@@ -119,7 +119,7 @@ class ReservationTest {
     void 같은_사용자가_예약자면_isOwnedBy는_true() {
         Reservation reservation = new Reservation(1L, BROWN, DATE, TIME, THEME);
 
-        assertThat(reservation.isOwnedBy(new User(2L, "any", "any"))).isTrue();
+        assertThat(reservation.isOwnedBy(new User(2L, "any", "any", Role.USER))).isTrue();
     }
 
     @Test

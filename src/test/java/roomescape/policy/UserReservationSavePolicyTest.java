@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import roomescape.domain.Reservation;
 import roomescape.domain.ReservationTime;
+import roomescape.domain.Role;
 import roomescape.domain.Theme;
 import roomescape.domain.User;
 import roomescape.exception.UnprocessableException;
@@ -24,7 +25,7 @@ class UserReservationSavePolicyTest {
     private static final ReservationTime FUTURE_TIME = new ReservationTime(1L, LocalTime.of(18, 0));
     private static final ReservationTime PAST_TIME = new ReservationTime(1L, LocalTime.of(9, 0));
     private static final Theme THEME = new Theme(1L, "우주 정거장", "설명", "https://example.com/1.jpg");
-    private static final User USER = new User(2L, "user1", "브라운");
+    private static final User USER = new User(2L, "user1", "브라운", Role.USER);
 
     private UserReservationSavePolicy policy;
 

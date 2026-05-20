@@ -9,6 +9,7 @@ import roomescape.command.ReservationEditCommand;
 import roomescape.command.ReservationSaveCommand;
 import roomescape.domain.Reservation;
 import roomescape.domain.ReservationTime;
+import roomescape.domain.Role;
 import roomescape.domain.Theme;
 import roomescape.domain.User;
 import roomescape.exception.ConflictException;
@@ -50,8 +51,8 @@ class ReservationServiceTest {
     private static final long THEME_ID = 1L;
     private static final long USER_ID = 2L;
     private static final long OTHER_USER_ID = 3L;
-    private static final User USER = new User(USER_ID, "user1", "브라운");
-    private static final User OTHER_USER = new User(OTHER_USER_ID, "user2", "조이");
+    private static final User USER = new User(USER_ID, "user1", "브라운", Role.USER);
+    private static final User OTHER_USER = new User(OTHER_USER_ID, "user2", "조이", Role.USER);
     private static final LocalTime FIXED_TIME = LocalTime.of(12, 0);
     private static final LocalDate FIXED_TODAY = LocalDate.of(2026, 5, 1);
     private static final LocalDateTime NOW = LocalDateTime.of(FIXED_TODAY, FIXED_TIME);

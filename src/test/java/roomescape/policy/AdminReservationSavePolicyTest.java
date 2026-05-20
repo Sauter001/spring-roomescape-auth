@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import roomescape.domain.Reservation;
 import roomescape.domain.ReservationTime;
+import roomescape.domain.Role;
 import roomescape.domain.Theme;
 import roomescape.domain.User;
 
@@ -19,7 +20,7 @@ class AdminReservationSavePolicyTest {
     private static final LocalDateTime FIXED_NOW = LocalDateTime.of(FIXED_TODAY, LocalTime.of(12, 0));
     private static final ReservationTime PAST_TIME = new ReservationTime(1L, LocalTime.of(9, 0));
     private static final Theme THEME = new Theme(1L, "우주 정거장", "설명", "https://example.com/1.jpg");
-    private static final User ADMIN = new User(1L, "admin", "관리자");
+    private static final User ADMIN = new User(1L, "admin", "관리자", Role.ADMIN);
 
     private AdminReservationSavePolicy policy;
 

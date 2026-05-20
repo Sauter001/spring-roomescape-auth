@@ -8,10 +8,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
-import roomescape.domain.Reservation;
-import roomescape.domain.ReservationTime;
-import roomescape.domain.Theme;
-import roomescape.domain.User;
+import roomescape.domain.*;
 import roomescape.exception.ConflictException;
 import roomescape.exception.code.ConflictCode;
 
@@ -60,7 +57,8 @@ public class JdbcTemplateReservationRepository implements ReservationRepository 
             User user = new User(
                     rs.getLong("user_id"),
                     rs.getString("user_uid"),
-                    rs.getString("user_name"));
+                    rs.getString("user_name"),
+                    Role.valueOf(rs.getString("role")));
             ReservationTime reservationTime = new ReservationTime(
                     rs.getLong("time_id"),
                     rs.getTime("start_at").toLocalTime());

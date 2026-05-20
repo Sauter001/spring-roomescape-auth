@@ -3,7 +3,8 @@ package roomescape.exception.code;
 import org.springframework.http.HttpStatus;
 
 public enum ForbiddenCode implements ErrorCode {
-    NOT_RESERVATION_OWNER("본인의 예약만 수정/취소할 수 있습니다.");
+    NOT_RESERVATION_OWNER("본인의 예약만 수정/취소할 수 있습니다."),
+    ADMIN_ACCESS_DENIED("관리자 권한이 필요합니다.");
 
     private final String message;
 

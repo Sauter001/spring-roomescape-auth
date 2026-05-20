@@ -4,8 +4,11 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
+import roomescape.exception.UnauthorizedException;
 import roomescape.provider.AuthorizationExtractor;
 import roomescape.provider.JwtProvider;
+
+import java.io.IOException;
 
 @Component
 public class AdminLoginInterceptor implements HandlerInterceptor {
@@ -16,9 +19,19 @@ public class AdminLoginInterceptor implements HandlerInterceptor {
     }
 
     @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
-        String token = AuthorizationExtractor.extract(request);
-        jwtProvider.getId(token); // 토큰 유효성 검증, 실패 시 UnauthorizedException
-        return true;
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
+            throws IOException {
+        try {
+            String token = AuthorizationExtractor.extract(request);
+            jwtProvider.getId(token); // 토큰 유효성 검증, 실패 시 UnauthorizedException
+            return true;
+        } catch (UnauthorizedException e) {
+            // API 요청은 JSON 401(프론트에서 처리), 페이지 네비게이션은 로그인 페이지로 보낸다.
+            if (request.getRequestURI().startsWith("/api/")) {
+                throw e;
+            }
+            response.sendRedirect("/");
+            return false;
+        }
     }
 }

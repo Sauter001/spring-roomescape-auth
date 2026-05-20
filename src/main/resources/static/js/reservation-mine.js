@@ -1,6 +1,4 @@
 (() => {
-    const nameInput = document.getElementById('search-name');
-    const searchBtn = document.getElementById('search-btn');
     const rows = document.getElementById('reservation-rows');
 
     const modal = document.getElementById('edit-modal');
@@ -18,30 +16,14 @@
     today.setMinutes(today.getMinutes() - today.getTimezoneOffset());
     editDate.min = today.toISOString().slice(0, 10);
 
-    const params = new URLSearchParams(location.search);
-    const initial = params.get('name');
-    if (initial) {
-        nameInput.value = initial;
-        search();
-    }
+    loadMyReservations();
 
-    searchBtn.addEventListener('click', search);
-    nameInput.addEventListener('keydown', e => {
-        if (e.key === 'Enter') search();
-    });
-
-    async function search() {
-        const name = nameInput.value.trim();
-        if (!name) return;
+    async function loadMyReservations() {
         try {
-            const res = await apiFetch(`/reservations?name=${encodeURIComponent(name)}`);
+            const res = await apiFetch('/reservations');
             const list = await res.json();
             renderRows(list);
         } catch (e) {
-            if (e.status === 404) {
-                renderEmpty();
-                return;
-            }
             toastError(e);
         }
     }

@@ -21,15 +21,12 @@
         }
 
         try {
-            const res = await apiFetch('/login', {
+            await apiFetch('/login', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({uid, password})
             });
-            const token = res.headers.get('Authorization');
-            if (token) {
-                localStorage.setItem('accessToken', token);
-            }
+            // 브라우저 인증은 서버가 내려준 쿠키로 유지된다.
             window.location.href = '/home';
         } catch (error) {
             toastError(error);

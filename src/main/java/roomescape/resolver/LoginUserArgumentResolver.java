@@ -1,7 +1,6 @@
 package roomescape.resolver;
 
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 import org.springframework.core.MethodParameter;
 import org.springframework.lang.Nullable;
 import org.springframework.web.bind.support.WebDataBinderFactory;
@@ -12,16 +11,19 @@ import roomescape.annotation.LoginUser;
 import roomescape.domain.User;
 import roomescape.exception.UnauthorizedException;
 import roomescape.exception.code.UnauthorizedCode;
+import roomescape.provider.AuthorizationExtractor;
+import roomescape.provider.JwtProvider;
 import roomescape.repository.UserRepository;
 
 import java.util.Objects;
 
 public class LoginUserArgumentResolver implements HandlerMethodArgumentResolver {
-    private static final String SESSION_KEY = "uid";
     private final UserRepository userRepository;
+    private final JwtProvider jwtProvider;
 
-    public LoginUserArgumentResolver(UserRepository userRepository) {
+    public LoginUserArgumentResolver(UserRepository userRepository, JwtProvider jwtProvider) {
         this.userRepository = userRepository;
+        this.jwtProvider = jwtProvider;
     }
 
     @Override
@@ -38,17 +40,10 @@ public class LoginUserArgumentResolver implements HandlerMethodArgumentResolver 
                                   @Nullable ModelAndViewContainer mavContainer,
                                   NativeWebRequest webRequest,
                                   @Nullable WebDataBinderFactory binderFactory) throws Exception {
-        HttpServletRequest request = webRequest.getNativeRequest(HttpServletRequest.class);
-        HttpSession session = Objects.requireNonNull(request).getSession();
+        HttpServletRequest request = Objects.requireNonNull(webRequest.getNativeRequest(HttpServletRequest.class));
 
-        if (Objects.isNull(session)) {
-            throwLoginRequiredException();
-        }
-        Long uid = (Long) session.getAttribute(SESSION_KEY);
-
-        if (Objects.isNull(uid)) {
-            throwLoginRequiredException();
-        }
+        String token = AuthorizationExtractor.extract(request);
+        long uid = jwtProvider.getId(token);
 
         return userRepository.findById(uid).orElseThrow(LoginUserArgumentResolver::throwLoginRequiredException);
     }

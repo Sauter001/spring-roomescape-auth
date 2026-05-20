@@ -34,7 +34,7 @@ class RoomescapeApplicationTest {
     @Sql({"/test-truncate.sql", "/test-user.sql", "/test-theme.sql", "/test-reservation-time.sql"})
     void 예약_가능_시간_조회_후_예약하면_해당_시간은_제외된다() {
         LocalDate date = LocalDate.now().plusDays(1);
-        String sessionId = login();
+        String token = login();
 
         List<Integer> times = RestAssured.given()
                 .queryParam("date", date.toString())
@@ -52,7 +52,7 @@ class RoomescapeApplicationTest {
         );
 
         RestAssured.given()
-                .sessionId(sessionId)
+                .header("Authorization", token)
                 .contentType(ContentType.JSON)
                 .body(request)
                 .when().post("/api/reservations")
@@ -77,6 +77,6 @@ class RoomescapeApplicationTest {
                 .body(Map.of("uid", "admin", "password", "admin123"))
                 .when().post("/api/login")
                 .then().statusCode(200)
-                .extract().sessionId();
+                .extract().header("Authorization");
     }
 }

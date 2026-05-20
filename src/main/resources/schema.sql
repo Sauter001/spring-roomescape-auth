@@ -23,6 +23,8 @@ CREATE TABLE users
     PRIMARY KEY (id)
 );
 
+CREATE INDEX uid_idx ON users(uid);
+
 CREATE TABLE reservation
 (
     id       BIGINT NOT NULL AUTO_INCREMENT,

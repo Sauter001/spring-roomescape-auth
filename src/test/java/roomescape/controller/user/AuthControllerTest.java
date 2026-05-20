@@ -11,6 +11,7 @@ import org.springframework.test.context.jdbc.Sql;
 import java.util.Map;
 
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.startsWith;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Sql({"/test-truncate.sql", "/test-user.sql"})
@@ -54,12 +55,12 @@ class AuthControllerTest {
     }
 
     @Test
-    void 로그인_성공시_세션쿠키가_발급된다() {
+    void 로그인_성공시_토큰이_발급된다() {
         RestAssured.given()
                 .contentType(ContentType.JSON)
                 .body(Map.of("uid", "admin", "password", "admin123"))
                 .when().post("/api/login")
                 .then().statusCode(200)
-                .cookie("JSESSIONID");
+                .header("Authorization", startsWith("Bearer "));
     }
 }

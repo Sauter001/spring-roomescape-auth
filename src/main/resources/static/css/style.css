@@ -524,15 +524,11 @@ button {
 }
 
 .login-card {
-    backdrop-filter: blur(4px);
-    background: rgba(255, 255, 255, 0.92);
-}
-
-.login-card {
     width: 100%;
     max-width: 380px;
     padding: 40px 32px;
-    background: #fff;
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(4px);
     border-radius: 12px;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
 }

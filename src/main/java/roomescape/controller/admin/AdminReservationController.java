@@ -3,17 +3,14 @@ package roomescape.controller.admin;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import roomescape.annotation.LoginUser;
 import roomescape.domain.Reservation;
+import roomescape.domain.User;
 import roomescape.policy.cancel.AdminReservationCancelPolicy;
 import roomescape.policy.save.AdminReservationSavePolicy;
 import roomescape.request.AdminReservationRequest;
+import roomescape.request.ReservationEditRequest;
 import roomescape.response.ReservationResponse;
 import roomescape.service.ReservationService;
 
@@ -64,5 +61,15 @@ public class AdminReservationController {
         reservationService.updateCanceled(id, LocalDateTime.now(clock), CANCEL_POLICY);
 
         return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<ReservationResponse> editReservation(
+            @PathVariable Long id,
+            @Valid @RequestBody ReservationEditRequest request,
+            @LoginUser User user) {
+        LocalDateTime now = LocalDateTime.now(clock);
+        Reservation reservation = reservationService.editReservationByOwner(id, user, request.toCommand(), now);
+        return ResponseEntity.ok(ReservationResponse.from(reservation));
     }
 }

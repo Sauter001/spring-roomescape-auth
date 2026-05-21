@@ -55,9 +55,10 @@ public class ManagerReservationController {
     @PatchMapping("/{id}")
     public ResponseEntity<ReservationResponse> editReservation(
             @PathVariable Long id,
-            @Valid @RequestBody ReservationEditRequest request) {
+            @Valid @RequestBody ReservationEditRequest request,
+            @LoginUser User manager) {
         LocalDateTime now = LocalDateTime.now(clock);
-        Reservation reservation = reservationService.editReservation(id, request.toCommand(), now);
+        Reservation reservation = reservationService.editReservationByManager(manager.id(), id, request.toCommand(), now);
         return ResponseEntity.ok(ReservationResponse.from(reservation));
     }
 

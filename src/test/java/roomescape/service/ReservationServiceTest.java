@@ -20,8 +20,10 @@ import roomescape.exception.code.ConflictCode;
 import roomescape.exception.code.ForbiddenCode;
 import roomescape.exception.code.NotFoundCode;
 import roomescape.exception.code.UnprocessableCode;
+import roomescape.domain.Branch;
 import roomescape.policy.cancel.AdminReservationCancelPolicy;
 import roomescape.policy.cancel.UserReservationCancelPolicy;
+import roomescape.policy.save.AdminReservationSavePolicy;
 import roomescape.policy.save.UserReservationSavePolicy;
 import roomescape.repository.BranchRepository;
 import roomescape.repository.ReservationRepository;
@@ -52,12 +54,16 @@ class ReservationServiceTest {
     private static final long THEME_ID = 1L;
     private static final long USER_ID = 2L;
     private static final long OTHER_USER_ID = 3L;
+    private static final long MANAGER_ID = 10L;
+    private static final long BRANCH_ID = 1L;
+    private static final long OTHER_BRANCH_ID = 2L;
     private static final User USER = new User(USER_ID, "user1", "브라운", Role.USER);
     private static final User OTHER_USER = new User(OTHER_USER_ID, "user2", "조이", Role.USER);
     private static final LocalTime FIXED_TIME = LocalTime.of(12, 0);
     private static final LocalDate FIXED_TODAY = LocalDate.of(2026, 5, 1);
     private static final LocalDateTime NOW = LocalDateTime.of(FIXED_TODAY, FIXED_TIME);
     private final UserReservationSavePolicy userPolicy = new UserReservationSavePolicy();
+    private final AdminReservationSavePolicy adminSavePolicy = new AdminReservationSavePolicy();
     private final UserReservationCancelPolicy userCancelPolicy = new UserReservationCancelPolicy();
     private final AdminReservationCancelPolicy adminCancelPolicy = new AdminReservationCancelPolicy();
     @Mock
@@ -317,5 +323,89 @@ class ReservationServiceTest {
         assertThatThrownBy(() -> reservationService.editReservation(1L, editCommand, NOW))
                 .isInstanceOf(UnprocessableException.class)
                 .hasMessage(UnprocessableCode.RESERVATION_PAST_TIME.getMessage());
+    }
+
+    @Test
+    void 매니저가_담당_매장_테마로_예약을_생성할_수_있다() {
+        Branch branch = new Branch(BRANCH_ID, "1호점");
+        ReservationTime time = new ReservationTime(TIME_ID, LocalTime.of(10, 0));
+        Theme theme = new Theme(THEME_ID, BRANCH_ID, "우주 정거장", "설명", "https://example.com/1.jpg");
+        ReservationSaveCommand command = new ReservationSaveCommand(USER_ID, LocalDate.of(2099, 12, 31), TIME_ID, THEME_ID);
+        Reservation persisted = new Reservation(99L, USER, LocalDate.of(2099, 12, 31), time, theme);
+
+        given(branchRepository.findByManagerId(MANAGER_ID)).willReturn(Optional.of(branch));
+        given(themeRepository.findById(THEME_ID)).willReturn(Optional.of(theme));
+        given(userRepository.findById(USER_ID)).willReturn(Optional.of(USER));
+        given(reservationTimeRepository.findById(TIME_ID)).willReturn(Optional.of(time));
+        given(reservationRepository.addReservation(any(Reservation.class))).willReturn(persisted);
+
+        Reservation saved = reservationService.saveReservationByManager(MANAGER_ID, command, NOW, adminSavePolicy);
+
+        assertThat(saved.id()).isEqualTo(99L);
+    }
+
+    @Test
+    void 매니저가_다른_매장_테마로_예약을_생성하면_403() {
+        Branch branch = new Branch(BRANCH_ID, "1호점");
+        Theme theme = new Theme(THEME_ID, OTHER_BRANCH_ID, "해적선의 저주", "설명", "https://example.com/6.jpg");
+        ReservationSaveCommand command = new ReservationSaveCommand(USER_ID, LocalDate.of(2099, 12, 31), TIME_ID, THEME_ID);
+
+        given(branchRepository.findByManagerId(MANAGER_ID)).willReturn(Optional.of(branch));
+        given(themeRepository.findById(THEME_ID)).willReturn(Optional.of(theme));
+
+        assertThatThrownBy(() -> reservationService.saveReservationByManager(MANAGER_ID, command, NOW, adminSavePolicy))
+                .isInstanceOf(ForbiddenException.class)
+                .hasMessage(ForbiddenCode.NOT_BRANCH_MANAGER.getMessage());
+    }
+
+    @Test
+    void 매장에_배정되지_않은_매니저가_예약을_생성하면_403() {
+        ReservationSaveCommand command = new ReservationSaveCommand(USER_ID, LocalDate.of(2099, 12, 31), TIME_ID, THEME_ID);
+
+        given(branchRepository.findByManagerId(MANAGER_ID)).willReturn(Optional.empty());
+
+        assertThatThrownBy(() -> reservationService.saveReservationByManager(MANAGER_ID, command, NOW, adminSavePolicy))
+                .isInstanceOf(ForbiddenException.class)
+                .hasMessage(ForbiddenCode.NOT_BRANCH_MANAGER.getMessage());
+    }
+
+    @Test
+    void 매니저가_담당_매장_예약을_취소할_수_있다() {
+        Branch branch = new Branch(BRANCH_ID, "1호점");
+        ReservationTime time = new ReservationTime(TIME_ID, LocalTime.of(10, 0));
+        Theme theme = new Theme(THEME_ID, BRANCH_ID, "우주 정거장", "설명", "https://example.com/1.jpg");
+        Reservation future = new Reservation(1L, USER, FIXED_TODAY.plusDays(1), time, theme);
+
+        given(branchRepository.findByManagerId(MANAGER_ID)).willReturn(Optional.of(branch));
+        given(reservationRepository.findById(1L)).willReturn(Optional.of(future));
+        given(reservationRepository.relocateToCanceledReservation(1L)).willReturn(1);
+
+        reservationService.cancelByManager(MANAGER_ID, 1L, NOW, adminCancelPolicy);
+
+        verify(reservationRepository).relocateToCanceledReservation(1L);
+    }
+
+    @Test
+    void 매니저가_다른_매장_예약을_취소하면_403() {
+        Branch branch = new Branch(BRANCH_ID, "1호점");
+        ReservationTime time = new ReservationTime(TIME_ID, LocalTime.of(10, 0));
+        Theme theme = new Theme(THEME_ID, OTHER_BRANCH_ID, "해적선의 저주", "설명", "https://example.com/6.jpg");
+        Reservation reservation = new Reservation(1L, USER, FIXED_TODAY.plusDays(1), time, theme);
+
+        given(branchRepository.findByManagerId(MANAGER_ID)).willReturn(Optional.of(branch));
+        given(reservationRepository.findById(1L)).willReturn(Optional.of(reservation));
+
+        assertThatThrownBy(() -> reservationService.cancelByManager(MANAGER_ID, 1L, NOW, adminCancelPolicy))
+                .isInstanceOf(ForbiddenException.class)
+                .hasMessage(ForbiddenCode.NOT_BRANCH_MANAGER.getMessage());
+    }
+
+    @Test
+    void 매장에_배정되지_않은_매니저가_예약을_취소하면_403() {
+        given(branchRepository.findByManagerId(MANAGER_ID)).willReturn(Optional.empty());
+
+        assertThatThrownBy(() -> reservationService.cancelByManager(MANAGER_ID, 1L, NOW, adminCancelPolicy))
+                .isInstanceOf(ForbiddenException.class)
+                .hasMessage(ForbiddenCode.NOT_BRANCH_MANAGER.getMessage());
     }
 }

@@ -13,6 +13,7 @@ import org.springframework.test.context.jdbc.Sql;
 import java.util.Map;
 
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Sql({"/test-truncate.sql", "/test-user.sql", "/test-theme.sql", "/test-branch-manager.sql",
@@ -71,6 +72,39 @@ class ManagerReservationControllerTest {
                 .contentType(ContentType.JSON)
                 .body(Map.of("userId", 2, "date", "2099-12-31", "timeId", 1, "themeId", OTHER_BRANCH_THEME_ID))
                 .when().post("/api/manager/reservations")
+                .then().statusCode(403)
+                .body("code", equalTo("NOT_BRANCH_MANAGER"));
+    }
+
+    @Test
+    void 매니저는_담당_매장의_예약_목록을_조회할_수_있다() {
+        RestAssured.given().header("Authorization", login("manager", "manager123"))
+                .when().get("/api/manager/reservations")
+                .then().statusCode(200)
+                .body("$", hasSize(2));
+    }
+
+    @Test
+    void 매니저는_담당_매장의_예약을_수정할_수_있다() {
+        jdbcTemplate.update(
+                "INSERT INTO reservation (user_id, date, time_id, theme_id) VALUES (?, ?, ?, ?)",
+                2, "2099-12-31", 1, OWN_BRANCH_THEME_ID);
+        Long futureReservationId = jdbcTemplate.queryForObject(
+                "SELECT MAX(id) FROM reservation", Long.class);
+
+        RestAssured.given().header("Authorization", login("manager", "manager123"))
+                .contentType(ContentType.JSON)
+                .body(Map.of("date", "2099-12-30", "timeId", 2))
+                .when().patch("/api/manager/reservations/" + futureReservationId)
+                .then().statusCode(200);
+    }
+
+    @Test
+    void 매니저가_다른_매장의_예약을_수정하면_403() {
+        RestAssured.given().header("Authorization", login("manager", "manager123"))
+                .contentType(ContentType.JSON)
+                .body(Map.of("date", "2099-12-30", "timeId", 2))
+                .when().patch("/api/manager/reservations/" + otherBranchReservationId)
                 .then().statusCode(403)
                 .body("code", equalTo("NOT_BRANCH_MANAGER"));
     }

@@ -175,6 +175,18 @@ public class ReservationService {
         updateCanceled(reservationId, now, policy);
     }
 
+    @Transactional
+    public Reservation editReservationByManager(Long managerId, Long reservationId, ReservationEditCommand command,
+                                                LocalDateTime now) {
+        long managerBranchId = findManagerBranchId(managerId);
+        Reservation reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new NotFoundException(NotFoundCode.RESERVATION_NOT_FOUND));
+        if (!reservation.theme().branchId().equals(managerBranchId)) {
+            throw new ForbiddenException(ForbiddenCode.NOT_BRANCH_MANAGER);
+        }
+        return editReservation(reservationId, command, now);
+    }
+
     private long findManagerBranchId(Long managerId) {
         return branchRepository.findByManagerId(managerId)
                 .map(Branch::id)

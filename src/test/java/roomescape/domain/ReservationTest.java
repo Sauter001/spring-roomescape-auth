@@ -18,7 +18,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class ReservationTest {
 
     private static final ReservationTime TIME = new ReservationTime(1L, LocalTime.of(10, 0));
-    private static final Theme THEME = new Theme(1L, "우주 정거장", "설명", "https://example.com/1.jpg");
+    private static final Theme THEME = new Theme(1L, 1L, "우주 정거장", "설명", "https://example.com/1.jpg");
     private static final LocalDate DATE = LocalDate.of(2026, 5, 10);
     private static final User BROWN = new User(2L, "user1", "브라운", Role.USER);
     private static final User JOY = new User(3L, "user2", "조이", Role.USER);
@@ -62,14 +62,14 @@ class ReservationTest {
     @ParameterizedTest
     @MethodSource("invalidDateTimes")
     void 예약시간이_받은_datetime과_같거나_이전이면_false(LocalDateTime dateTime) {
-        Theme theme = new Theme(1L, "theme1", "desc1", "https://example.com/1.jpg");
+        Theme theme = new Theme(1L, 1L, "theme1", "desc1", "https://example.com/1.jpg");
         Reservation reservation = new Reservation(null, BROWN, DATE, TIME, theme);
         assertThat(reservation.isDateTimeBefore(dateTime)).isFalse();
     }
 
     @Test
     void 예약시간이_받은_datetime과_이후면_true() {
-        Theme theme = new Theme(1L, "theme1", "desc1", "https://example.com/1.jpg");
+        Theme theme = new Theme(1L, 1L, "theme1", "desc1", "https://example.com/1.jpg");
         Reservation reservation = new Reservation(null, BROWN, DATE, TIME, theme);
         LocalDateTime dateTime = LocalDateTime.of(DATE, TIME.startAt().plusMinutes(1));
         assertThat(reservation.isDateTimeBefore(dateTime)).isTrue();

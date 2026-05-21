@@ -23,9 +23,9 @@ public class JdbcTemplateReservationRepository implements ReservationRepository 
 
     private static final String SELECT_RESERVATION_JOIN =
             "SELECT r.id AS reservation_id, r.date, " +
-                    "u.id AS user_id, u.uid AS user_uid, u.name AS user_name, " +
+                    "u.id AS user_id, u.uid AS user_uid, u.name AS user_name, u.role AS role, " +
                     "t.id AS time_id, t.start_at, " +
-                    "th.id AS theme_id, th.name AS theme_name, th.description AS theme_description, " +
+                    "th.id AS theme_id, th.branch_id AS theme_branch_id, th.name AS theme_name, th.description AS theme_description, " +
                     "th.thumbnail_url AS theme_thumbnail_url " +
                     "FROM reservation r " +
                     "JOIN users u ON r.user_id = u.id " +
@@ -64,6 +64,7 @@ public class JdbcTemplateReservationRepository implements ReservationRepository 
                     rs.getTime("start_at").toLocalTime());
             Theme theme = new Theme(
                     rs.getLong("theme_id"),
+                    rs.getLong("theme_branch_id"),
                     rs.getString("theme_name"),
                     rs.getString("theme_description"),
                     rs.getString("theme_thumbnail_url"));

@@ -2,6 +2,9 @@ DELETE
 FROM reservation;
 
 DELETE
+FROM branch_manager;
+
+DELETE
 FROM reservation_time;
 
 DELETE
@@ -9,6 +12,9 @@ FROM theme;
 
 DELETE
 FROM users;
+
+DELETE
+FROM branch;
 
 ALTER TABLE reservation
     ALTER COLUMN id RESTART WITH 1;
@@ -20,4 +26,10 @@ ALTER TABLE theme
     ALTER COLUMN id RESTART WITH 1;
 
 ALTER TABLE users
+    ALTER COLUMN id RESTART WITH 1;
+
+ALTER TABLE branch
+    ALTER COLUMN id RESTART WITH 1;
+
+ALTER TABLE branch_manager
     ALTER COLUMN id RESTART WITH 1;

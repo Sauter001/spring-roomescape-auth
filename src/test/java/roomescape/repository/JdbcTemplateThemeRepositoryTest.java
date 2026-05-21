@@ -38,7 +38,7 @@ class JdbcTemplateThemeRepositoryTest {
     @Test
     @Sql({"/test-truncate.sql", "/test-theme.sql"})
     void 테마를_저장한다() {
-        Theme theme = new Theme(null, "마법 학교", "마법 학교의 마지막 시험을 통과하세요.", "https://example.com/theme10.jpg");
+        Theme theme = new Theme(null, 1L, "마법 학교", "마법 학교의 마지막 시험을 통과하세요.", "https://example.com/theme10.jpg");
 
         Theme savedTheme = themeRepository.save(theme);
 
@@ -51,7 +51,7 @@ class JdbcTemplateThemeRepositoryTest {
     @Test
     @Sql({"/test-truncate.sql", "/test-theme.sql"})
     void 테마를_삭제한다() {
-        Theme theme = new Theme(null, "마법 학교", "마법 학교의 마지막 시험을 통과하세요.", "https://example.com/theme10.jpg");
+        Theme theme = new Theme(null, 1L, "마법 학교", "마법 학교의 마지막 시험을 통과하세요.", "https://example.com/theme10.jpg");
         long id = themeRepository.save(theme).id();
 
         themeRepository.delete(id);

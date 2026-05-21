@@ -81,7 +81,7 @@ class ReservationServiceTest {
     @Test
     void 예약을_저장하면_id가_채워진_도메인을_반환한다() {
         ReservationTime time = new ReservationTime(TIME_ID, LocalTime.of(10, 0));
-        Theme theme = new Theme(THEME_ID, "우주 정거장", "설명", "https://example.com/1.jpg");
+        Theme theme = new Theme(THEME_ID, 1L, "우주 정거장", "설명", "https://example.com/1.jpg");
         ReservationSaveCommand saveCommand = new ReservationSaveCommand(USER_ID, LocalDate.of(2026, 5, 10), TIME_ID, THEME_ID);
         Reservation persisted = new Reservation(99L, USER, LocalDate.of(2026, 5, 10), time, theme);
 
@@ -134,7 +134,7 @@ class ReservationServiceTest {
     @Test
     void 저장된_모든_예약을_조회한다() {
         ReservationTime time = new ReservationTime(TIME_ID, LocalTime.of(10, 0));
-        Theme theme = new Theme(THEME_ID, "우주 정거장", "설명", "https://example.com/1.jpg");
+        Theme theme = new Theme(THEME_ID, 1L, "우주 정거장", "설명", "https://example.com/1.jpg");
         List<Reservation> stored = List.of(
                 new Reservation(1L, USER, LocalDate.of(2026, 5, 10), time, theme),
                 new Reservation(2L, OTHER_USER, LocalDate.of(2026, 5, 4), time, theme));
@@ -167,7 +167,7 @@ class ReservationServiceTest {
     @Test
     void 관리자는_지난_예약도_취소할_수_있다() {
         ReservationTime time = new ReservationTime(TIME_ID, LocalTime.of(10, 0));
-        Theme theme = new Theme(THEME_ID, "우주 정거장", "설명", "https://example.com/1.jpg");
+        Theme theme = new Theme(THEME_ID, 1L, "우주 정거장", "설명", "https://example.com/1.jpg");
         Reservation past = new Reservation(1L, USER, FIXED_TODAY.minusDays(1), time, theme);
         given(reservationRepository.findById(1L)).willReturn(Optional.of(past));
         given(reservationRepository.relocateToCanceledReservation(1L)).willReturn(1);
@@ -180,7 +180,7 @@ class ReservationServiceTest {
     @Test
     void 오늘_날짜의_지난_시간으로_예약하면_예외가_발생한다() {
         ReservationTime pastTime = new ReservationTime(TIME_ID, LocalTime.of(0, 0));
-        Theme theme = new Theme(THEME_ID, "우주 정거장", "설명", "https://example.com/1.jpg");
+        Theme theme = new Theme(THEME_ID, 1L, "우주 정거장", "설명", "https://example.com/1.jpg");
         ReservationSaveCommand saveCommand = new ReservationSaveCommand(USER_ID, FIXED_TODAY, TIME_ID, THEME_ID);
 
         given(userRepository.findById(USER_ID)).willReturn(Optional.of(USER));
@@ -195,7 +195,7 @@ class ReservationServiceTest {
     void 같은_날짜_시간_테마에_이미_예약이_있으면_중복_예외가_발생한다() {
         LocalDate date = LocalDate.of(2026, 5, 10);
         ReservationTime time = new ReservationTime(TIME_ID, LocalTime.of(10, 0));
-        Theme theme = new Theme(THEME_ID, "우주 정거장", "설명", "https://example.com/1.jpg");
+        Theme theme = new Theme(THEME_ID, 1L, "우주 정거장", "설명", "https://example.com/1.jpg");
         ReservationSaveCommand saveCommand = new ReservationSaveCommand(USER_ID, date, TIME_ID, THEME_ID);
 
         given(userRepository.findById(USER_ID)).willReturn(Optional.of(USER));
@@ -212,7 +212,7 @@ class ReservationServiceTest {
     @Test
     void 예약을_취소하면_repository에_id가_전달된다() {
         ReservationTime time = new ReservationTime(TIME_ID, LocalTime.of(10, 0));
-        Theme theme = new Theme(THEME_ID, "우주 정거장", "설명", "https://example.com/1.jpg");
+        Theme theme = new Theme(THEME_ID, 1L, "우주 정거장", "설명", "https://example.com/1.jpg");
         Reservation future = new Reservation(1L, USER, FIXED_TODAY.plusDays(1), time, theme);
         given(reservationRepository.findById(1L)).willReturn(Optional.of(future));
         given(reservationRepository.relocateToCanceledReservation(1L)).willReturn(1);
@@ -234,7 +234,7 @@ class ReservationServiceTest {
     @Test
     void 이미_지난_예약은_사용자가_취소할_수_없다() {
         ReservationTime time = new ReservationTime(TIME_ID, LocalTime.of(10, 0));
-        Theme theme = new Theme(THEME_ID, "우주 정거장", "설명", "https://example.com/1.jpg");
+        Theme theme = new Theme(THEME_ID, 1L, "우주 정거장", "설명", "https://example.com/1.jpg");
         Reservation past = new Reservation(7L, USER, FIXED_TODAY.minusDays(1), time, theme);
         given(reservationRepository.findById(7L)).willReturn(Optional.of(past));
 
@@ -246,7 +246,7 @@ class ReservationServiceTest {
     @Test
     void 본인_아닌_예약을_취소하려_하면_403_예외() {
         ReservationTime time = new ReservationTime(TIME_ID, LocalTime.of(10, 0));
-        Theme theme = new Theme(THEME_ID, "우주 정거장", "설명", "https://example.com/1.jpg");
+        Theme theme = new Theme(THEME_ID, 1L, "우주 정거장", "설명", "https://example.com/1.jpg");
         Reservation other = new Reservation(1L, OTHER_USER, FIXED_TODAY.plusDays(1), time, theme);
         given(reservationRepository.findById(1L)).willReturn(Optional.of(other));
 
@@ -258,7 +258,7 @@ class ReservationServiceTest {
     @Test
     void 본인_아닌_예약을_수정하려_하면_403_예외() {
         ReservationTime time = new ReservationTime(TIME_ID, LocalTime.of(10, 0));
-        Theme theme = new Theme(THEME_ID, "우주 정거장", "설명", "https://example.com/1.jpg");
+        Theme theme = new Theme(THEME_ID, 1L, "우주 정거장", "설명", "https://example.com/1.jpg");
         Reservation other = new Reservation(1L, OTHER_USER, FIXED_TODAY.plusDays(1), time, theme);
         ReservationEditCommand editCommand = new ReservationEditCommand(FIXED_TODAY.plusDays(2), TIME_ID);
         given(reservationRepository.findById(1L)).willReturn(Optional.of(other));
@@ -271,7 +271,7 @@ class ReservationServiceTest {
     @Test
     void 기존_예약과_겹치면_수정_불가() {
         ReservationTime time = new ReservationTime(TIME_ID, LocalTime.of(10, 0));
-        Theme theme1 = new Theme(1L, "우주 정거장", "설명", "https://example.com/1.jpg");
+        Theme theme1 = new Theme(1L, 1L, "우주 정거장", "설명", "https://example.com/1.jpg");
 
         Reservation future = new Reservation(1L, USER, FIXED_TODAY.plusDays(1), time, theme1);
         ReservationEditCommand editCommand = new ReservationEditCommand(FIXED_TODAY.plusDays(1), TIME_ID);
@@ -285,7 +285,7 @@ class ReservationServiceTest {
     @Test
     void 과거_날짜로_수정_불가() {
         ReservationTime time = new ReservationTime(TIME_ID, FIXED_TIME);
-        Theme theme = new Theme(1L, "우주 정거장", "설명", "https://example.com/1.jpg");
+        Theme theme = new Theme(1L, 1L, "우주 정거장", "설명", "https://example.com/1.jpg");
 
         Reservation reservation = new Reservation(1L, USER, FIXED_TODAY, time, theme);
         ReservationEditCommand editCommand = new ReservationEditCommand(FIXED_TODAY.minusDays(1), TIME_ID);
@@ -302,7 +302,7 @@ class ReservationServiceTest {
         long currentReservationTimeId = 3L;
         long editedReservationTimeId = 1L;
         ReservationTime time = new ReservationTime(currentReservationTimeId, FIXED_TIME);
-        Theme theme = new Theme(1L, "우주 정거장", "설명", "https://example.com/1.jpg");
+        Theme theme = new Theme(1L, 1L, "우주 정거장", "설명", "https://example.com/1.jpg");
 
         Reservation reservation = new Reservation(1L, USER, FIXED_TODAY, time, theme);
         ReservationEditCommand editCommand = new ReservationEditCommand(FIXED_TODAY, editedReservationTimeId);

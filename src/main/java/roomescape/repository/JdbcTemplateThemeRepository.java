@@ -24,9 +24,10 @@ public class JdbcTemplateThemeRepository implements ThemeRepository {
 
     @Override
     public List<Theme> findAll() {
-        return jdbcTemplate.query("SELECT id, name, description, thumbnail_url FROM theme",
+        return jdbcTemplate.query("SELECT id, branch_id, name, description, thumbnail_url FROM theme",
                 (rs, rowNum) -> new Theme(
                         rs.getLong("id"),
+                        rs.getLong("branch_id"),
                         rs.getString("name"),
                         rs.getString("description"),
                         rs.getString("thumbnail_url")
@@ -40,12 +41,13 @@ public class JdbcTemplateThemeRepository implements ThemeRepository {
         jdbcTemplate.update(
                 conn -> {
                     PreparedStatement preparedStatement = conn.prepareStatement(
-                            "INSERT INTO theme(name, description, thumbnail_url) " +
-                                    "VALUES (?, ?, ?)", PreparedStatement.RETURN_GENERATED_KEYS);
+                            "INSERT INTO theme(branch_id, name, description, thumbnail_url) " +
+                                    "VALUES (?, ?, ?, ?)", PreparedStatement.RETURN_GENERATED_KEYS);
 
-                    preparedStatement.setString(1, theme.name());
-                    preparedStatement.setString(2, theme.description());
-                    preparedStatement.setString(3, theme.thumbnailUrl());
+                    preparedStatement.setLong(1, theme.branchId());
+                    preparedStatement.setString(2, theme.name());
+                    preparedStatement.setString(3, theme.description());
+                    preparedStatement.setString(4, theme.thumbnailUrl());
 
                     return preparedStatement;
                 },
@@ -53,6 +55,7 @@ public class JdbcTemplateThemeRepository implements ThemeRepository {
 
         return new Theme(
                 Objects.requireNonNull(keyHolder.getKey()).longValue(),
+                theme.branchId(),
                 theme.name(),
                 theme.description(),
                 theme.thumbnailUrl());
@@ -71,9 +74,10 @@ public class JdbcTemplateThemeRepository implements ThemeRepository {
     public Optional<Theme> findById(Long id) {
         try {
             Theme theme = jdbcTemplate.queryForObject(
-                    "SELECT id, name, description, thumbnail_url FROM theme WHERE id = ?",
+                    "SELECT id, branch_id, name, description, thumbnail_url FROM theme WHERE id = ?",
                     (rs, rowNum) -> new Theme(
                             rs.getLong("id"),
+                            rs.getLong("branch_id"),
                             rs.getString("name"),
                             rs.getString("description"),
                             rs.getString("thumbnail_url")
@@ -89,18 +93,19 @@ public class JdbcTemplateThemeRepository implements ThemeRepository {
     @Override
     public List<Theme> findPopularThemes(LocalDate startInclusive, LocalDate endInclusive, int limit) {
         return jdbcTemplate.query(
-                "SELECT th.id, th.name, th.description, th.thumbnail_url " +
+                "SELECT th.id, th.branch_id, th.name, th.description, th.thumbnail_url " +
                         "FROM reservation r JOIN theme th ON r.theme_id = th.id " +
                         "WHERE r.date BETWEEN ? AND ? " +
-                        "GROUP BY th.id, th.name, th.description, th.thumbnail_url " +
+                        "GROUP BY th.id, th.branch_id, th.name, th.description, th.thumbnail_url " +
                         "ORDER BY COUNT(r.id) DESC " +
                         "LIMIT ?",
                 (rs, rowNum) -> {
                     long id = rs.getLong("id");
+                    long branchId = rs.getLong("branch_id");
                     String name = rs.getString("name");
                     String description = rs.getString("description");
                     String thumbnailUrl = rs.getString("thumbnail_url");
-                    return new Theme(id, name, description, thumbnailUrl);
+                    return new Theme(id, branchId, name, description, thumbnailUrl);
                 },
                 startInclusive, endInclusive, limit
         );

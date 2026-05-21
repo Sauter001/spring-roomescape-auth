@@ -2,7 +2,7 @@ package roomescape.domain;
 
 import java.util.Objects;
 
-public record Theme(Long id, String name, String description, String thumbnailUrl) {
+public record Theme(Long id, Long branchId, String name, String description, String thumbnailUrl) {
 
     @Override
     public boolean equals(Object o) {

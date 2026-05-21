@@ -1,4 +1,4 @@
-package roomescape.policy;
+package roomescape.policy.save;
 
 import roomescape.domain.Reservation;
 import roomescape.exception.UnprocessableException;

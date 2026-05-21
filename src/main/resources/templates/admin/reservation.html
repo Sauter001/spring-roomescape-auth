@@ -60,6 +60,7 @@
 </main>
 
 <div th:replace="~{fragments/layout :: toast}"></div>
+<script th:inline="javascript">window.RESERVATION_API_PATH = /*[[${reservationApiPath}]]*/ '/admin/reservations';</script>
 <script th:src="@{/js/admin-reservation.js}"></script>
 </body>
 </html>

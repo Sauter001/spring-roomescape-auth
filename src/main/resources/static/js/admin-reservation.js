@@ -21,7 +21,7 @@
             return showToast('모든 항목을 입력해주세요.', 'error');
         }
         try {
-            const res = await apiFetch('/admin/reservations', {
+            const res = await apiFetch(window.RESERVATION_API_PATH, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify(body)
@@ -56,7 +56,7 @@
         if (!confirm('삭제하시겠습니까?')) return;
         const id = tr.dataset.id;
         try {
-            await apiFetch(`/admin/reservations/${id}`, {method: 'DELETE'});
+            await apiFetch(`${window.RESERVATION_API_PATH}/${id}`, {method: 'DELETE'});
             tr.remove();
             toastSuccess('예약이 삭제되었습니다.');
         } catch (e) {

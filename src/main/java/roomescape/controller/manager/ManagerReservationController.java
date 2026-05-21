@@ -1,4 +1,4 @@
-package roomescape.controller.admin;
+package roomescape.controller.manager;
 
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -10,7 +10,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import roomescape.annotation.LoginUser;
 import roomescape.domain.Reservation;
+import roomescape.domain.User;
 import roomescape.policy.cancel.AdminReservationCancelPolicy;
 import roomescape.policy.save.AdminReservationSavePolicy;
 import roomescape.request.AdminReservationRequest;
@@ -23,35 +25,31 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/admin/reservations")
-public class AdminReservationController {
+@RequestMapping("/api/manager/reservations")
+public class ManagerReservationController {
     private static final AdminReservationSavePolicy SAVE_POLICY = new AdminReservationSavePolicy();
     private static final AdminReservationCancelPolicy CANCEL_POLICY = new AdminReservationCancelPolicy();
     private static final String DEFAULT_PATH = "/api/reservations/";
     private final ReservationService reservationService;
     private final Clock clock;
 
-    public AdminReservationController(
-            ReservationService reservationService,
-            Clock clock) {
+    public ManagerReservationController(ReservationService reservationService, Clock clock) {
         this.reservationService = reservationService;
         this.clock = clock;
     }
 
     @GetMapping
-    public List<ReservationResponse> getReservations() {
-        return ReservationResponse.from(reservationService.findAllReservations());
+    public List<ReservationResponse> getReservations(@LoginUser User manager) {
+        return ReservationResponse.from(reservationService.findReservationsToManage(manager.id()));
     }
 
     @PostMapping
     public ResponseEntity<ReservationResponse> saveReservation(
-            @Valid @RequestBody AdminReservationRequest request) {
+            @Valid @RequestBody AdminReservationRequest request, @LoginUser User manager) {
         LocalDateTime now = LocalDateTime.now(clock);
-        Reservation reservationReturned = reservationService.saveReservation(request.toSaveCommand(), now,
-                SAVE_POLICY);
-        ReservationResponse reservationResponse = ReservationResponse.from(reservationReturned);
+        Reservation saved = reservationService.saveReservationByManager(manager.id(), request.toSaveCommand(), now, SAVE_POLICY);
 
-        return ResponseEntity.created(getLocation(reservationResponse.id())).body(reservationResponse);
+        return ResponseEntity.created(getLocation(saved.id())).body(ReservationResponse.from(saved));
     }
 
     @NonNull
@@ -60,8 +58,8 @@ public class AdminReservationController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteReservation(@PathVariable Long id) {
-        reservationService.updateCanceled(id, LocalDateTime.now(clock), CANCEL_POLICY);
+    public ResponseEntity<Void> deleteReservation(@PathVariable Long id, @LoginUser User manager) {
+        reservationService.cancelByManager(manager.id(), id, LocalDateTime.now(clock), CANCEL_POLICY);
 
         return ResponseEntity.noContent().build();
     }

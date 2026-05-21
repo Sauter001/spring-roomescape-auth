@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import roomescape.command.ReservationEditCommand;
 import roomescape.command.ReservationSaveCommand;
+import roomescape.domain.Branch;
 import roomescape.domain.Reservation;
 import roomescape.domain.ReservationTime;
 import roomescape.domain.Theme;
@@ -17,8 +18,9 @@ import roomescape.exception.code.ConflictCode;
 import roomescape.exception.code.ForbiddenCode;
 import roomescape.exception.code.NotFoundCode;
 import roomescape.exception.code.UnprocessableCode;
-import roomescape.policy.ReservationCancelPolicy;
-import roomescape.policy.ReservationSavePolicy;
+import roomescape.policy.cancel.ReservationCancelPolicy;
+import roomescape.policy.save.ReservationSavePolicy;
+import roomescape.repository.BranchRepository;
 import roomescape.repository.ReservationRepository;
 import roomescape.repository.ReservationTimeRepository;
 import roomescape.repository.ThemeRepository;
@@ -33,16 +35,19 @@ public class ReservationService {
     private final ReservationTimeRepository reservationTimeRepository;
     private final ThemeRepository themeRepository;
     private final UserRepository userRepository;
+    private final BranchRepository branchRepository;
 
     public ReservationService(
             ReservationRepository reservationRepository,
             ReservationTimeRepository reservationTimeRepository,
             ThemeRepository themeRepository,
-            UserRepository userRepository) {
+            UserRepository userRepository,
+            BranchRepository branchRepository) {
         this.reservationRepository = reservationRepository;
         this.reservationTimeRepository = reservationTimeRepository;
         this.themeRepository = themeRepository;
         this.userRepository = userRepository;
+        this.branchRepository = branchRepository;
     }
 
     public List<Reservation> findAllReservations() {
@@ -145,5 +150,34 @@ public class ReservationService {
 
     public List<Reservation> findReservationsToManage(Long userId) {
         return reservationRepository.findReservationsToManage(userId);
+    }
+
+    @Transactional
+    public Reservation saveReservationByManager(Long managerId, ReservationSaveCommand command, LocalDateTime now,
+                                                ReservationSavePolicy policy) {
+        long managerBranchId = findManagerBranchId(managerId);
+        Theme theme = themeRepository.findById(command.themeId())
+                .orElseThrow(() -> new NotFoundException(NotFoundCode.THEME_NOT_FOUND));
+        if (!theme.branchId().equals(managerBranchId)) {
+            throw new ForbiddenException(ForbiddenCode.NOT_BRANCH_MANAGER);
+        }
+        return saveReservation(command, now, policy);
+    }
+
+    @Transactional
+    public void cancelByManager(Long managerId, Long reservationId, LocalDateTime now, ReservationCancelPolicy policy) {
+        long managerBranchId = findManagerBranchId(managerId);
+        Reservation reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new NotFoundException(NotFoundCode.RESERVATION_NOT_FOUND));
+        if (!reservation.theme().branchId().equals(managerBranchId)) {
+            throw new ForbiddenException(ForbiddenCode.NOT_BRANCH_MANAGER);
+        }
+        updateCanceled(reservationId, now, policy);
+    }
+
+    private long findManagerBranchId(Long managerId) {
+        return branchRepository.findByManagerId(managerId)
+                .map(Branch::id)
+                .orElseThrow(() -> new ForbiddenException(ForbiddenCode.NOT_BRANCH_MANAGER));
     }
 }

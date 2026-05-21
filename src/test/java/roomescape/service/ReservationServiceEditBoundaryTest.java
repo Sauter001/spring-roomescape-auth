@@ -16,6 +16,7 @@ import roomescape.exception.code.NotFoundCode;
 import roomescape.exception.code.UnprocessableCode;
 import roomescape.fake.FakeReservationRepository;
 import roomescape.fake.FakeReservationTimeRepository;
+import roomescape.repository.BranchRepository;
 import roomescape.repository.ThemeRepository;
 import roomescape.repository.UserRepository;
 
@@ -57,7 +58,7 @@ class ReservationServiceEditBoundaryTest {
         FakeReservationRepository reservationRepository = new FakeReservationRepository(referencedReservations);
         FakeReservationTimeRepository timeRepository =
                 new FakeReservationTimeRepository(List.of(TIME_NOW, TIME_LATER, TIME_PAST));
-        service = new ReservationService(reservationRepository, timeRepository, mock(ThemeRepository.class), mock(UserRepository.class));
+        service = new ReservationService(reservationRepository, timeRepository, mock(ThemeRepository.class), mock(UserRepository.class), mock(BranchRepository.class));
     }
 
     @Test

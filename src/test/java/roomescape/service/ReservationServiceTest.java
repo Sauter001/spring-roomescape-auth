@@ -20,9 +20,10 @@ import roomescape.exception.code.ConflictCode;
 import roomescape.exception.code.ForbiddenCode;
 import roomescape.exception.code.NotFoundCode;
 import roomescape.exception.code.UnprocessableCode;
-import roomescape.policy.AdminReservationCancelPolicy;
-import roomescape.policy.UserReservationCancelPolicy;
-import roomescape.policy.UserReservationSavePolicy;
+import roomescape.policy.cancel.AdminReservationCancelPolicy;
+import roomescape.policy.cancel.UserReservationCancelPolicy;
+import roomescape.policy.save.UserReservationSavePolicy;
+import roomescape.repository.BranchRepository;
 import roomescape.repository.ReservationRepository;
 import roomescape.repository.ReservationTimeRepository;
 import roomescape.repository.ThemeRepository;
@@ -67,6 +68,8 @@ class ReservationServiceTest {
     private ThemeRepository themeRepository;
     @Mock
     private UserRepository userRepository;
+    @Mock
+    private BranchRepository branchRepository;
     private ReservationService reservationService;
 
     @BeforeEach
@@ -75,7 +78,8 @@ class ReservationServiceTest {
                 reservationRepository,
                 reservationTimeRepository,
                 themeRepository,
-                userRepository);
+                userRepository,
+                branchRepository);
     }
 
     @Test

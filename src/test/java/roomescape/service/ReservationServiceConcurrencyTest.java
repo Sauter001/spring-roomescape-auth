@@ -7,7 +7,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.jdbc.Sql;
 import roomescape.command.ReservationSaveCommand;
 import roomescape.exception.ConflictException;
-import roomescape.policy.UserReservationSavePolicy;
+import roomescape.policy.save.UserReservationSavePolicy;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;

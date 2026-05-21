@@ -4,6 +4,7 @@ import org.springframework.http.HttpStatus;
 
 public enum ForbiddenCode implements ErrorCode {
     NOT_RESERVATION_OWNER("본인의 예약만 수정/취소할 수 있습니다."),
+    NOT_BRANCH_MANAGER("담당 매장의 예약만 관리할 수 있습니다."),
     ACCESS_DENIED("접근 권한이 없습니다.");
 
     private final String message;

@@ -1,10 +1,10 @@
-package roomescape.policy;
+package roomescape.policy.cancel;
 
 import roomescape.domain.Reservation;
 
 import java.time.LocalDateTime;
 
-public class AdminReservationSavePolicy implements ReservationSavePolicy {
+public class AdminReservationCancelPolicy implements ReservationCancelPolicy {
 
     @Override
     public void validate(Reservation reservation, LocalDateTime now) {

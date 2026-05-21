@@ -14,7 +14,8 @@
         <nav>
             <a th:href="@{/home}">홈</a>
             <a th:href="@{/reservation-mine}">내 예약</a>
-            <a th:if="${isStaff}" th:href="@{/admin}">관리자</a>
+            <a th:if="${isAdmin}" th:href="@{/admin}">관리자</a>
+            <a th:if="${isManager}" th:href="@{/manager/reservation}">매장 관리</a>
             <a id="logout-link" th:href="@{/}">로그아웃</a>
         </nav>
     </div>

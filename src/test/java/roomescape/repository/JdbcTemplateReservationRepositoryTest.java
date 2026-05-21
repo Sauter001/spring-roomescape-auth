@@ -25,6 +25,7 @@ class JdbcTemplateReservationRepositoryTest {
     private static final long THEME_ID = 1L;
     private static final long ADMIN_ID = 1L;
     private static final long USER1_ID = 2L;
+    private static final long MANAGER_ID = 3L;
 
     @Autowired
     private ReservationRepository reservationRepository;
@@ -50,10 +51,27 @@ class JdbcTemplateReservationRepositoryTest {
     }
 
     private Reservation addReservation(long userId, LocalDate date) {
+        return addReservationOnTheme(userId, date, THEME_ID);
+    }
+
+    private Reservation addReservationOnTheme(long userId, LocalDate date, long themeId) {
         ReservationTime time = new ReservationTime(TIME_ID, LocalTime.of(10, 0));
-        Theme theme = themeRepository.findById(THEME_ID).get();
+        Theme theme = themeRepository.findById(themeId).get();
         User user = userRepository.findById(userId).get();
         return reservationRepository.addReservation(new Reservation(null, user, date, time, theme));
+    }
+
+    @Test
+    @Sql({"/test-truncate.sql", "/test-user.sql", "/test-theme.sql", "/test-branch-manager.sql",
+            "/test-reservation-time.sql"})
+    void 매니저는_담당_매장의_예약만_조회한다() {
+        addReservationOnTheme(USER1_ID, LocalDate.of(2026, 5, 3), 1L);  // 테마1 → branch 1 (매니저 담당)
+        addReservationOnTheme(USER1_ID, LocalDate.of(2026, 5, 3), 6L);  // 테마6 → branch 2
+
+        List<Reservation> managed = reservationRepository.findReservationsToManage(MANAGER_ID);
+
+        assertThat(managed).hasSize(1);
+        assertThat(managed.get(0).theme().branchId()).isEqualTo(1L);
     }
 
     @Test

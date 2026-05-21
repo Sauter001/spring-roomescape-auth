@@ -143,8 +143,7 @@ public class ReservationService {
         }
     }
 
-    @Transactional
-    public List<Reservation> findReservationsToManage(Long id) {
-        return reservationRepository.findReservationsByUserId(id);
+    public List<Reservation> findReservationsToManage(Long userId) {
+        return reservationRepository.findReservationsToManage(userId);
     }
 }

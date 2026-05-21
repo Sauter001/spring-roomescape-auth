@@ -151,4 +151,15 @@ public class JdbcTemplateReservationRepository implements ReservationRepository 
             throw new IllegalStateException();
         }
     }
+
+    @Override
+    public List<Reservation> findReservationsToManage(Long managerId) {
+        return jdbcTemplate.query(
+                SELECT_RESERVATION_JOIN +
+                        "JOIN branch_manager bm ON th.branch_id = bm.branch_id " +
+                        "WHERE bm.user_id = ?",
+                reservationRowMapper(),
+                managerId
+        );
+    }
 }

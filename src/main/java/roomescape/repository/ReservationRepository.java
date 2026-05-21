@@ -24,4 +24,6 @@ public interface ReservationRepository {
     int countReservationsOf(LocalDate date, long timeId, long themeId);
 
     void updateReservation(Long id, LocalDate date, long timeId);
+
+    List<Reservation> findReservationsToManage(Long managerId);
 }

@@ -56,6 +56,11 @@ public class FakeReservationRepository implements ReservationRepository {
     }
 
     @Override
+    public List<Reservation> findReservationsToManage(Long managerId) {
+        throw new UnsupportedOperationException("FakeReservationRepository에서 지원 안 함");
+    }
+
+    @Override
     public int countReservationsOf(LocalDate date, long timeId, long themeId) {
         return (int) reservations.stream()
                 .filter(r -> r.date().equals(date))

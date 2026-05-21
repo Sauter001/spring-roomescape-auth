@@ -36,8 +36,8 @@ public class AuthController {
 
         String token = jwtProvider.createToken(userId);
         return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, tokenCookie(token, TOKEN_VALIDITY).toString()) // 브라우저
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)                           // 모바일/API
+                .header(HttpHeaders.SET_COOKIE, tokenCookie(token, TOKEN_VALIDITY).toString())
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                 .build();
     }
 

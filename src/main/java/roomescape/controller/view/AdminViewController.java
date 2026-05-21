@@ -3,14 +3,20 @@ package roomescape.controller.view;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import roomescape.annotation.LoginUser;
 import roomescape.annotation.RequireRole;
+import roomescape.domain.Reservation;
 import roomescape.domain.Role;
+import roomescape.domain.Theme;
+import roomescape.domain.User;
 import roomescape.response.ReservationResponse;
 import roomescape.response.ReservationTimeResponse;
 import roomescape.response.ThemeResponse;
 import roomescape.service.ReservationService;
 import roomescape.service.ReservationTimeService;
 import roomescape.service.ThemeService;
+
+import java.util.List;
 
 @Controller
 @RequireRole({Role.ADMIN, Role.MANAGER})
@@ -34,9 +40,18 @@ public class AdminViewController {
     }
 
     @GetMapping("/admin/reservation")
-    public String reservation(Model model) {
-        model.addAttribute("reservations", ReservationResponse.from(reservationService.findAllReservations()));
-        model.addAttribute("themes", ThemeResponse.from(themeService.getThemes()));
+    public String reservation(Model model, @LoginUser User user) {
+        List<Reservation> reservations;
+        List<Theme> themes;
+        if (user.isAdmin()) {
+            reservations = reservationService.findAllReservations();
+            themes = themeService.getThemes();
+        } else {
+            reservations = reservationService.findReservationsToManage(user.id());
+            themes = themeService.findThemesToManage(user.id());
+        }
+        model.addAttribute("reservations", ReservationResponse.from(reservations));
+        model.addAttribute("themes", ThemeResponse.from(themes));
         model.addAttribute("times", ReservationTimeResponse.from(reservationTimeService.findAllReservationTimes()));
         return "admin/reservation";
     }

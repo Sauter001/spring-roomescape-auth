@@ -26,6 +26,10 @@ public class ThemeService {
         return themeRepository.findAll();
     }
 
+    public List<Theme> findThemesToManage(Long managerId) {
+        return themeRepository.findThemesToManage(managerId);
+    }
+
     public Theme findById(Long id) {
         return themeRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(NotFoundCode.THEME_NOT_FOUND));

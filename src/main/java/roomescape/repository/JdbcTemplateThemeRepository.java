@@ -35,6 +35,23 @@ public class JdbcTemplateThemeRepository implements ThemeRepository {
     }
 
     @Override
+    public List<Theme> findThemesToManage(Long managerId) {
+        return jdbcTemplate.query(
+                "SELECT th.id, th.branch_id, th.name, th.description, th.thumbnail_url " +
+                        "FROM theme th " +
+                        "JOIN branch_manager bm ON th.branch_id = bm.branch_id " +
+                        "WHERE bm.user_id = ?",
+                (rs, rowNum) -> new Theme(
+                        rs.getLong("id"),
+                        rs.getLong("branch_id"),
+                        rs.getString("name"),
+                        rs.getString("description"),
+                        rs.getString("thumbnail_url")
+                ),
+                managerId);
+    }
+
+    @Override
     public Theme save(Theme theme) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
 

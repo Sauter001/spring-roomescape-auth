@@ -9,6 +9,8 @@ import java.util.Optional;
 public interface ThemeRepository {
     List<Theme> findAll();
 
+    List<Theme> findThemesToManage(Long managerId);
+
     Theme save(Theme theme);
 
     void delete(Long id);

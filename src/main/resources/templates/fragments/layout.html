@@ -10,10 +10,11 @@
 <header class="site-header" th:fragment="header">
     <div class="container">
         <a class="logo" th:href="@{/home}">방탈출</a>
+        <span class="branch-badge" th:if="${branchName}" th:text="'점포: ' + ${branchName}"></span>
         <nav>
             <a th:href="@{/home}">홈</a>
             <a th:href="@{/reservation-mine}">내 예약</a>
-            <a th:href="@{/admin}">관리자</a>
+            <a th:if="${isStaff}" th:href="@{/admin}">관리자</a>
             <a id="logout-link" th:href="@{/}">로그아웃</a>
         </nav>
     </div>

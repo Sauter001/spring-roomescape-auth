@@ -24,51 +24,100 @@ class AdminLoginInterceptorTest {
         RestAssured.port = port;
     }
 
+    // ---------- 인증(로그인) ----------
+
     @Test
-    void 비로그인_상태에서_admin_엔드포인트_접근시_401() {
+    void 비로그인_상태로_admin_API_접근시_401() {
         RestAssured.given()
                 .when().get("/api/admin/themes")
                 .then().statusCode(401)
                 .body("code", equalTo("LOGIN_REQUIRED"));
     }
 
-    @Test
-    void ADMIN_권한이면_admin_엔드포인트_접근_허용() {
-        String token = login("admin", "admin123");
+    // ---------- ADMIN: 전체 허용 ----------
 
+    @Test
+    void ADMIN은_테마_API에_접근할_수_있다() {
         RestAssured.given()
-                .header("Authorization", token)
+                .header("Authorization", login("admin", "admin123"))
                 .when().get("/api/admin/themes")
                 .then().statusCode(200);
     }
 
     @Test
-    void MANAGER_권한이면_admin_엔드포인트_접근_허용() {
-        String token = login("manager", "manager123");
-
+    void ADMIN은_테마_관리_페이지에_접근할_수_있다() {
         RestAssured.given()
-                .header("Authorization", token)
-                .when().get("/api/admin/themes")
+                .redirects().follow(false)
+                .header("Authorization", login("admin", "admin123"))
+                .when().get("/admin/theme")
+                .then().statusCode(200);
+    }
+
+    // ---------- MANAGER: 예약은 허용, 테마/타임은 거부 ----------
+
+    @Test
+    void MANAGER는_예약_관리_페이지에_접근할_수_있다() {
+        RestAssured.given()
+                .redirects().follow(false)
+                .header("Authorization", login("manager", "manager123"))
+                .when().get("/admin/reservation")
                 .then().statusCode(200);
     }
 
     @Test
-    void USER_권한으로_admin_엔드포인트_접근시_403() {
-        String token = login("user1", "password1");
-
+    void MANAGER는_테마_API에_접근하면_403() {
         RestAssured.given()
-                .header("Authorization", token)
+                .header("Authorization", login("manager", "manager123"))
                 .when().get("/api/admin/themes")
                 .then().statusCode(403)
-                .body("code", equalTo("ADMIN_ACCESS_DENIED"));
+                .body("code", equalTo("ACCESS_DENIED"));
     }
 
     @Test
-    void 로그인_없이_admin_시간_엔드포인트_접근시_401() {
+    void MANAGER는_타임_API에_접근하면_403() {
         RestAssured.given()
+                .header("Authorization", login("manager", "manager123"))
                 .when().get("/api/admin/times")
-                .then().statusCode(401)
-                .body("code", equalTo("LOGIN_REQUIRED"));
+                .then().statusCode(403)
+                .body("code", equalTo("ACCESS_DENIED"));
+    }
+
+    @Test
+    void MANAGER가_테마_관리_페이지에_접근하면_홈으로_리다이렉트() {
+        RestAssured.given()
+                .redirects().follow(false)
+                .header("Authorization", login("manager", "manager123"))
+                .when().get("/admin/theme")
+                .then().statusCode(302);
+    }
+
+    // ---------- USER: 관리자 영역 전체 거부 ----------
+
+    @Test
+    void USER가_테마_API에_접근하면_403() {
+        RestAssured.given()
+                .header("Authorization", login("user1", "password1"))
+                .when().get("/api/admin/themes")
+                .then().statusCode(403)
+                .body("code", equalTo("ACCESS_DENIED"));
+    }
+
+    @Test
+    void USER가_예약_API에_접근하면_403() {
+        RestAssured.given()
+                .header("Authorization", login("user1", "password1"))
+                .when().get("/api/admin/reservations")
+                .then().statusCode(403)
+                .body("code", equalTo("ACCESS_DENIED"));
+    }
+
+    @Test
+    void USER가_관리자_페이지에_접근하면_홈으로_리다이렉트() {
+        RestAssured.given()
+                .redirects().follow(false)
+                .header("Authorization", login("user1", "password1"))
+                .when().get("/admin/reservation")
+                .then().statusCode(302);
     }
 
     private String login(String uid, String password) {

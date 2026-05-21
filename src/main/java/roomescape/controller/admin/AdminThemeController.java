@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import roomescape.annotation.RequireRole;
+import roomescape.domain.Role;
 import roomescape.domain.Theme;
 import roomescape.request.ThemeRequest;
 import roomescape.response.ThemeResponse;
@@ -20,6 +22,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/admin/themes")
+@RequireRole(Role.ADMIN)
 public class AdminThemeController {
     private static final String DEFAULT_PATH = "/api/admin/themes/";
     private final ThemeService themeService;

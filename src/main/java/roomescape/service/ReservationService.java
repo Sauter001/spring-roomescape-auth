@@ -142,4 +142,9 @@ public class ReservationService {
             throw new ConflictException(ConflictCode.RESERVATION_DUPLICATED);
         }
     }
+
+    @Transactional
+    public List<Reservation> findReservationsToManage(Long id) {
+        return reservationRepository.findReservationsByUserId(id);
+    }
 }

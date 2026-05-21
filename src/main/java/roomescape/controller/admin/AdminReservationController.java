@@ -10,7 +10,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import roomescape.annotation.LoginUser;
+import roomescape.annotation.RequireRole;
 import roomescape.domain.Reservation;
+import roomescape.domain.Role;
+import roomescape.domain.User;
 import roomescape.policy.AdminReservationCancelPolicy;
 import roomescape.policy.AdminReservationSavePolicy;
 import roomescape.request.AdminReservationRequest;
@@ -24,6 +28,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/admin/reservations")
+@RequireRole({Role.ADMIN, Role.MANAGER})
 public class AdminReservationController {
     private static final AdminReservationSavePolicy SAVE_POLICY = new AdminReservationSavePolicy();
     private static final AdminReservationCancelPolicy CANCEL_POLICY = new AdminReservationCancelPolicy();
@@ -39,8 +44,11 @@ public class AdminReservationController {
     }
 
     @GetMapping
-    public List<ReservationResponse> getReservations() {
-        return ReservationResponse.from(reservationService.findAllReservations());
+    public List<ReservationResponse> getReservations(@LoginUser User user) {
+        if (user.isAdmin()) {
+            return ReservationResponse.from(reservationService.findAllReservations());
+        }
+        return ReservationResponse.from(reservationService.findReservationsToManage(user.id()));
     }
 
     @PostMapping

@@ -3,6 +3,8 @@ package roomescape.controller.view;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import roomescape.annotation.RequireRole;
+import roomescape.domain.Role;
 import roomescape.response.ReservationResponse;
 import roomescape.response.ReservationTimeResponse;
 import roomescape.response.ThemeResponse;
@@ -11,6 +13,7 @@ import roomescape.service.ReservationTimeService;
 import roomescape.service.ThemeService;
 
 @Controller
+@RequireRole({Role.ADMIN, Role.MANAGER})
 public class AdminViewController {
 
     private final ReservationService reservationService;
@@ -39,12 +42,14 @@ public class AdminViewController {
     }
 
     @GetMapping("/admin/time")
+    @RequireRole(Role.ADMIN)
     public String time(Model model) {
         model.addAttribute("times", ReservationTimeResponse.from(reservationTimeService.findAllReservationTimes()));
         return "admin/time";
     }
 
     @GetMapping("/admin/theme")
+    @RequireRole(Role.ADMIN)
     public String theme(Model model) {
         model.addAttribute("themes", ThemeResponse.from(themeService.getThemes()));
         return "admin/theme";
